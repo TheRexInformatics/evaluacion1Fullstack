@@ -1,0 +1,94 @@
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - inventario-service
+      - pedidos-service
+    networks:
+      - smartlogix-network
+
+  db-inventario:
+    image: postgres:15-alpine
+    container_name: db-inventario
+    environment:
+      POSTGRES_DB: smartlogix_inventario
+      POSTGRES_USER: user_logix
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5433:5432"
+    volumes:
+      - inventario_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_logix -d smartlogix_inventario"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartlogix-network
+
+  inventario-service:
+    build:
+      context: ./inventario-service
+    container_name: inventario-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-inventario:5432/smartlogix_inventario
+      - SPRING_DATASOURCE_USERNAME=user_logix
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      db-inventario:
+        condition: service_healthy
+    networks:
+      - smartlogix-network
+
+  db-pedidos:
+    image: postgres:15-alpine
+    container_name: db-pedidos
+    environment:
+      POSTGRES_DB: smartlogix_pedidos
+      POSTGRES_USER: user_logix
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5434:5432"
+    volumes:
+      - pedidos_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_logix -d smartlogix_pedidos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartlogix-network
+
+  pedidos-service:
+    build:
+      context: ./pedidos-service
+    container_name: pedidos-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-pedidos:5432/smartlogix_pedidos
+      - SPRING_DATASOURCE_USERNAME=user_logix
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - INVENTARIO_SERVICE_URL=http://inventario-service:8081
+    depends_on:
+      db-pedidos:
+        condition: service_healthy
+      inventario-service:
+        condition: service_started
+    networks:
+      - smartlogix-network
+
+networks:
+  smartlogix-network:
+    driver: bridge
+
+volumes:
+  inventario_data:
+  pedidos_data:
