@@ -85,6 +85,42 @@ services:
     networks:
       - smartlogix-network
 
+  db-envios:
+    image: postgres:15-alpine
+    container_name: db-envios
+    environment:
+      POSTGRES_DB: smartlogix_envios
+      POSTGRES_USER: user_logix
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5435:5432"
+    volumes:
+      - envios_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_logix -d smartlogix_envios"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartlogix-network
+
+  envios-service:
+    build:
+      context: ./envios-service
+    container_name: envios-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db-envios:5432/smartlogix_envios
+      - SPRING_DATASOURCE_USERNAME=user_logix
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8083
+    depends_on:
+      db-envios:
+        condition: service_healthy
+    networks:
+      - smartlogix-network
 networks:
   smartlogix-network:
     driver: bridge
@@ -92,3 +128,4 @@ networks:
 volumes:
   inventario_data:
   pedidos_data:
+  envios_data:

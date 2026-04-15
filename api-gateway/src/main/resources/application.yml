@@ -21,6 +21,11 @@ spring:
           filters:
             - StripPrefix=0
 
+        - id: envios-service
+          uri: http://envios-service:8083
+          predicates:
+            - Path=/api/envios/**
+
       globalcors:
         cors-configurations:
           '[/**]':
