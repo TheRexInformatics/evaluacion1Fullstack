@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: inventario-service
+          uri: http://inventario-service:8081
+          predicates:
+            - Path=/api/productos/**, /api/stocks/**
+          filters:
+            - StripPrefix=0
+
+        - id: pedidos-service
+          uri: http://pedidos-service:8082
+          predicates:
+            - Path=/api/pedidos/**
+          filters:
+            - StripPrefix=0
+
+        - id: envios-service
+          uri: http://envios-service:8083
+          predicates:
+            - Path=/api/envios/**
+
+        - id: bff-service
+          uri: http://bff-service:8084
+          predicates:
+            - Path=/api/bff/**
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.http.server.reactive: DEBUG
