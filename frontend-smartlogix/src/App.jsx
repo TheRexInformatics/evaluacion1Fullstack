@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import PedidosContainer from "./containers/PedidosContainer";
+
 
 /* ─────────────────────────────────────────────────────────
    FACADE LAYER (simulada)
@@ -372,8 +374,15 @@ export default function App() {
         <Header section={activeSection} />
 
         {activeSection === "Dashboard"
-          ? <DashboardContainer />
-          : <PlaceholderSection section={activeSection} />}
+         && <DashboardContainer />}
+        {activeSection === "Pedidos" 
+        && <PedidosContainer />
+        }
+
+        {/* 3.(Los que aún no programamos) */}
+        {(activeSection === "Inventario" || activeSection === "Envíos") && (
+          <PlaceholderSection section={activeSection} />
+        )}
       </div>
     </div>
   );

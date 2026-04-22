@@ -7,10 +7,10 @@ export default function Header({ section }) {
   });
 
   return (
-    <header className="bg-white border-b border-gray-100 px-6 py-3.5 flex items-center justify-between shrink-0">
+    <header className=" bg-blue-600 border-b border-gray-100 px-6 py-3.5 flex items-center justify-between shrink-0">
       <div>
-        <h1 className="text-gray-800 font-semibold text-base">{section}</h1>
-        <p className="text-gray-400 text-xs capitalize">{now}</p>
+        <h1 className="text-white font-semibold text-base">{section}</h1>
+        <p className="text-blue-100 text-xs capitalize">{now}</p>
       </div>
 
       <div className="flex items-center gap-3">
