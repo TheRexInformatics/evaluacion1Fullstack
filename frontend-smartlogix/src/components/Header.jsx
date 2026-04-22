@@ -14,7 +14,7 @@ export default function Header({ section }) {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Notification bell */}
+        {/* Campanita de busqueda */}
         <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
           <span className="text-gray-500 text-lg">🔔</span>
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
