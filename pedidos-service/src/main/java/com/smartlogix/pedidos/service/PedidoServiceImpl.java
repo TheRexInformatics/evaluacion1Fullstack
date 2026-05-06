@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PedidoServiceImpl implements PedidoService {
@@ -20,14 +21,31 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public Pedido crearPedido(Pedido pedido) {
+        // LOGS PARA RASTREAR EL ERROR
+        System.out.println("DEBUG: Verificando SKU: " + pedido.getCodigoProducto() + " Cantidad: " + pedido.getCantidad());
+
+        // 1. Llamada al micro de Inventario
         Boolean tieneStock = inventarioClient.checkStock(pedido.getCodigoProducto(), pedido.getCantidad());
+
+        System.out.println("DEBUG: ¿Inventario reporta stock?: " + tieneStock);
+
         if (tieneStock == null || !tieneStock) {
-            throw new RuntimeException("Sin stock suficiente");
+            throw new RuntimeException("Sin stock suficiente para: " + pedido.getCodigoProducto());
         }
 
+        // 2. Obtener detalles para el precio
         ProductoDTO producto = inventarioClient.getProductoById(pedido.getProductoId());
+
+        if (producto == null) {
+            throw new RuntimeException("El producto no existe en el sistema de inventario.");
+        }
+
+        // 3. Procesar y Guardar
         pedido.setTotal(producto.getPrecio().multiply(BigDecimal.valueOf(pedido.getCantidad())));
         pedido.setEstado("PROCESADO");
+
+        // Opcional: Reducir el stock físicamente después de crear el pedido
+        inventarioClient.reducirStock(pedido.getCodigoProducto(), pedido.getCantidad());
 
         return pedidoRepository.save(pedido);
     }
@@ -37,7 +55,6 @@ public class PedidoServiceImpl implements PedidoService {
         return pedidoRepository.findAll();
     }
 
-    // ESTO ES LO QUE FALTABA IMPLEMENTAR
     @Override
     public Optional<Pedido> findById(Long id) {
         return pedidoRepository.findById(id);
