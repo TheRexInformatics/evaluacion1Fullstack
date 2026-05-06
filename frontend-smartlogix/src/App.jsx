@@ -364,7 +364,7 @@ function DashboardContainer() {
    ROOT APP
 ───────────────────────────────────────────────────────── */
 export default function App() {
-  const [activeSection, setActiveSection] = useState("Dashboard");
+  const [ activeSection, setActiveSection] = useState("Dashboard");
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans overflow-hidden" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
