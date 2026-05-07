@@ -8,10 +8,8 @@ public class ProductoDTOTest {
 
     @Test
     void verificarCreacionDeProducto() {
-        // Creamos un producto de prueba
         ProductoDTO producto = new ProductoDTO(1L, "SKU-123", "Notebook", new BigDecimal("1000"));
 
-        // Verificamos que el nombre se guardó correctamente
         assertEquals("Notebook", producto.getNombre());
     }
 }
