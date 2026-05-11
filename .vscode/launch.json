@@ -1,0 +1,51 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Current File",
+      "request": "launch",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "ApiGatewayApplication",
+      "request": "launch",
+      "mainClass": "com.smartlogix.gateway.ApiGatewayApplication",
+      "projectName": "api-gateway"
+    },
+    {
+      "type": "java",
+      "name": "BffServiceApplication",
+      "request": "launch",
+      "mainClass": "com.smartlogix.bff.BffServiceApplication",
+      "projectName": "bff-service"
+    },
+    {
+      "type": "java",
+      "name": "EnviosServiceApplication",
+      "request": "launch",
+      "mainClass": "com.smartlogix.envios.EnviosServiceApplication",
+      "projectName": "envios-service"
+    },
+    {
+      "type": "java",
+      "name": "InventarioServiceApplication",
+      "request": "launch",
+      "mainClass": "com.smartlogix.inventario.InventarioServiceApplication",
+      "projectName": "inventario-service",
+      "env": {
+        "NEON_INVENTARIO_URL": "jdbc:postgresql://ep-wandering-smoke-aqsjl5o5-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require",
+        "NEON_INVENTARIO_USER": "neondb_owner",
+        "NEON_INVENTARIO_PASSWORD": "npg_L6Is0UHhWAQd"
+      }
+    },
+    {
+      "type": "java",
+      "name": "PedidosServiceApplication",
+      "request": "launch",
+      "mainClass": "com.smartlogix.pedidos.PedidosServiceApplication",
+      "projectName": "pedidos-service"
+    }
+  ]
+}

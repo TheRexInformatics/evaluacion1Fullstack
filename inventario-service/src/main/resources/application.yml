@@ -6,9 +6,9 @@ spring:
     name: inventario-service
 
   datasource:
-    url: jdbc:postgresql://db-inventario:5432/smartlogix_inventario
-    username: user_logix
-    password: password123
+    url: ${NEON_INVENTARIO_URL:jdbc:postgresql://db-inventario:5432/smartlogix_inventario}
+    username: ${NEON_INVENTARIO_USER:user_logix}
+    password: ${NEON_INVENTARIO_PASSWORD:password123}
     driver-class-name: org.postgresql.Driver
 
   jpa:
