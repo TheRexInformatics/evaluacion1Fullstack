@@ -1,4 +1,4 @@
-package com.smartlogix.pedidos.model;
+package com.smartlogix.pedidos.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,5 +13,4 @@ public class ProductoDTO {
     private String sku;
     private String nombre;
     private BigDecimal precio;
-    private String sagaStatus;
 }

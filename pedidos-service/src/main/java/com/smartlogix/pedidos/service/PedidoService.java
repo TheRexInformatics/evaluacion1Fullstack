@@ -1,13 +1,15 @@
 package com.smartlogix.pedidos.service;
 
 import com.smartlogix.pedidos.dto.PedidoDTO;
-import com.smartlogix.pedidos.model.Pedido;
 import java.util.List;
 
 public interface PedidoService {
-    Pedido crearPedido(Pedido pedido);
+    // Recibe DTO y devuelve DTO
+    PedidoDTO crearPedido(PedidoDTO pedidoDTO);
 
-    List<Pedido> findAll();
+    // Devuelve lista de DTOs
+    List<PedidoDTO> findAll();
 
+    // Ya estaba correcto
     PedidoDTO compensarPedido(Long id);
 }

@@ -1,31 +1,33 @@
 package com.smartlogix.pedidos.controller;
 
-import com.smartlogix.pedidos.model.Pedido;
+import com.smartlogix.pedidos.dto.PedidoDTO;
 import com.smartlogix.pedidos.service.PedidoService;
-import com.smartlogix.pedidos.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/pedidos")
 @RequiredArgsConstructor
 public class PedidoController {
+
     private final PedidoService pedidoService;
 
     @PostMapping
-    public ResponseEntity<?> crearPedido(@RequestBody Pedido pedido) {
+    // CAMBIO AQUÍ: Recibimos PedidoDTO en lugar de Pedido
+    public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO pedidoDTO) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.crearPedido(pedido));
+            return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.crearPedido(pedidoDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Pedido>> listarPedidos() {
+    // CAMBIO AQUÍ: Retornamos List<PedidoDTO> en lugar de List<Pedido>
+    public ResponseEntity<List<PedidoDTO>> listarPedidos() {
         return ResponseEntity.ok(pedidoService.findAll());
     }
 

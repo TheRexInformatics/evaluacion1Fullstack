@@ -2,7 +2,7 @@ package com.smartlogix.pedidos.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-
+// IMPORTANTE: Asegurarnos de que importe desde dto y no desde model
 import com.smartlogix.pedidos.dto.ProductoDTO;
 
 @FeignClient(name = "inventario-service", url = "${inventario.service.url}")
