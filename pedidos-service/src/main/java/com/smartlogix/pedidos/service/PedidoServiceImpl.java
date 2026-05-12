@@ -53,7 +53,16 @@ public class PedidoServiceImpl implements PedidoService {
         // 3. Guardar cambios
         Pedido pedidoActualizado = pedidoRepository.save(pedido);
 
-        // 4. Retornar el DTO (¡Para cumplir con la rúbrica!)
+        // 4. Intentar restaurar el stock (si falla, lo logueamos pero no lanzamos
+        // excepción)
+        try {
+            inventarioClient.restaurarStock(pedido.getCodigoProducto(), pedido.getCantidad());
+        } catch (Exception e) {
+
+            System.err.println("Error al intentar restaurar stock para el pedido " + id + ": " + e.getMessage());
+        }
+
+        // 5. Retornar el DTO (¡Para cumplir con la rúbrica!)
         return mapearADTO(pedidoActualizado);
     }
 
