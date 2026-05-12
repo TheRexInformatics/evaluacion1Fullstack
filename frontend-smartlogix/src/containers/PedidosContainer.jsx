@@ -1,43 +1,57 @@
-import { useState, useEffect, useCallback } from "react";
-import { getPedidos, createPedido, updatePedido, cancelPedido } from "../facade/pedidosFacade";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  getPedidos,
+  getPedidoById,
+  createPedido,
+  updatePedido,
+  cancelPedido,
+} from "../facade/BffFacade";
 import PedidosView from "../components/PedidosView";
 
 const EMPTY_FORM = { client: "", items: "", total: "", fecha: "" };
 
 export default function PedidosContainer() {
-  // ── Data ────────────────────────────────────────────────────────────────
-  const [pedidos, setPedidos]   = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [saving,  setSaving]    = useState(false);
-  const [error,   setError]     = useState(null);
+  // ── Data ─────────────────────────────────────────────────────────────────
+  const [pedidos,  setPedidos]  = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [saving,   setSaving]   = useState(false);
+  const [error,    setError]    = useState(null);
 
-  // ── Filters ─────────────────────────────────────────────────────────────
+  // ── Filtros servidor (sagaStatus + fechas) ────────────────────────────────
   const [filterStatus,     setFilterStatus]     = useState("ALL");
   const [filterFechaDesde, setFilterFechaDesde] = useState("");
   const [filterFechaHasta, setFilterFechaHasta] = useState("");
 
-  // ── Modal ───────────────────────────────────────────────────────────────
-  const [modalMode,    setModalMode]    = useState(null);   // "create" | "edit" | null
-  const [selectedId,   setSelectedId]   = useState(null);
-  const [form,         setForm]         = useState(EMPTY_FORM);
-  const [formErrors,   setFormErrors]   = useState({});
+  // ── Filtro local por clienteId / ID de pedido ─────────────────────────────
+  const [searchClienteId, setSearchClienteId] = useState("");
 
-  // ── Confirm cancel dialog ────────────────────────────────────────────────
+  // ── Modal CRUD ────────────────────────────────────────────────────────────
+  const [modalMode,  setModalMode]  = useState(null); // "create" | "edit"
+  const [selectedId, setSelectedId] = useState(null);
+  const [form,       setForm]       = useState(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState({});
+
+  // ── Modal DETALLE ─────────────────────────────────────────────────────────
+  const [detallePedido,  setDetallePedido]  = useState(null);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
+  const [showDetalle,    setShowDetalle]    = useState(false);
+
+  // ── Confirm cancel ────────────────────────────────────────────────────────
   const [confirmCancelId, setConfirmCancelId] = useState(null);
 
-  // ── Load / reload ────────────────────────────────────────────────────────
+  // ── Carga desde servidor ──────────────────────────────────────────────────
   const loadPedidos = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await getPedidos({
-        status:     filterStatus,
+        sagaStatus: filterStatus,
         fechaDesde: filterFechaDesde,
         fechaHasta: filterFechaHasta,
       });
       setPedidos(data);
-    } catch {
-      setError("No se pudieron cargar los pedidos.");
+    } catch (err) {
+      setError(err.message ?? "No se pudieron cargar los pedidos.");
     } finally {
       setLoading(false);
     }
@@ -45,24 +59,33 @@ export default function PedidosContainer() {
 
   useEffect(() => { loadPedidos(); }, [loadPedidos]);
 
-  // ── Form helpers ─────────────────────────────────────────────────────────
+  // ── Filtro local por clienteId (sin round-trip al servidor) ──────────────
+  const pedidosFiltrados = useMemo(() => {
+    if (!searchClienteId.trim()) return pedidos;
+    const q = searchClienteId.trim().toLowerCase();
+    return pedidos.filter(
+      (p) =>
+        (p.clienteId ?? p.client ?? "").toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q)
+    );
+  }, [pedidos, searchClienteId]);
+
+  // ── Form helpers ──────────────────────────────────────────────────────────
   function handleFormChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
     setFormErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
   function validateForm() {
-    const errs = {};
-    if (!form.client.trim())      errs.client = "El cliente es requerido.";
-    if (!form.fecha)              errs.fecha  = "La fecha es requerida.";
-    if (!form.items || isNaN(Number(form.items)) || Number(form.items) < 1)
-      errs.items = "Debe ser un número mayor a 0.";
-    if (!form.total || isNaN(Number(form.total)) || Number(form.total) < 0)
-      errs.total = "Debe ser un monto válido.";
-    return errs;
+    const e = {};
+    if (!form.client.trim())                                         e.client = "El cliente es requerido.";
+    if (!form.fecha)                                                 e.fecha  = "La fecha es requerida.";
+    if (!form.items || isNaN(+form.items) || +form.items < 1)       e.items  = "Debe ser un número mayor a 0.";
+    if (form.total === "" || isNaN(+form.total) || +form.total < 0) e.total  = "Debe ser un monto válido.";
+    return e;
   }
 
-  // ── Open modals ──────────────────────────────────────────────────────────
+  // ── Abrir modal CRUD ──────────────────────────────────────────────────────
   function handleOpenCreate() {
     setForm(EMPTY_FORM);
     setFormErrors({});
@@ -72,7 +95,7 @@ export default function PedidosContainer() {
 
   function handleOpenEdit(pedido) {
     setForm({
-      client: pedido.client,
+      client: pedido.clienteId ?? pedido.client ?? "",
       items:  String(pedido.items),
       total:  String(pedido.total),
       fecha:  pedido.fecha,
@@ -80,6 +103,7 @@ export default function PedidosContainer() {
     setFormErrors({});
     setSelectedId(pedido.id);
     setModalMode("edit");
+    setShowDetalle(false);
   }
 
   function handleCloseModal() {
@@ -89,7 +113,7 @@ export default function PedidosContainer() {
     setFormErrors({});
   }
 
-  // ── Submit ───────────────────────────────────────────────────────────────
+  // ── Submit CRUD ───────────────────────────────────────────────────────────
   async function handleSubmit() {
     const errs = validateForm();
     if (Object.keys(errs).length > 0) { setFormErrors(errs); return; }
@@ -97,30 +121,47 @@ export default function PedidosContainer() {
     setSaving(true);
     try {
       const payload = {
-        client: form.client.trim(),
-        items:  Number(form.items),
-        total:  Number(form.total),
-        fecha:  form.fecha,
+        clienteId: form.client.trim(),
+        items:     +form.items,
+        total:     +form.total,
+        fecha:     form.fecha,
       };
-
-      if (modalMode === "create") {
-        await createPedido(payload);
-      } else {
-        await updatePedido(selectedId, payload);
-      }
+      if (modalMode === "create") await createPedido(payload);
+      else                        await updatePedido(selectedId, payload);
 
       handleCloseModal();
       await loadPedidos();
-    } catch {
-      setError("Error al guardar el pedido.");
+    } catch (err) {
+      setError(err.message ?? "Error al guardar el pedido.");
     } finally {
       setSaving(false);
     }
   }
 
-  // ── Cancel (Saga) ────────────────────────────────────────────────────────
+  // ── Modal DETALLE — carga datos completos incluyendo motivoFallo ──────────
+  async function handleOpenDetalle(pedido) {
+    setDetallePedido(pedido);    // datos básicos de inmediato
+    setLoadingDetalle(true);
+    setShowDetalle(true);
+    try {
+      const completo = await getPedidoById(pedido.id);
+      setDetallePedido(completo);
+    } catch {
+      // mantiene los datos básicos si el detalle falla
+    } finally {
+      setLoadingDetalle(false);
+    }
+  }
+
+  function handleCloseDetalle() {
+    setShowDetalle(false);
+    setDetallePedido(null);
+  }
+
+  // ── Cancel (Saga compensation) ────────────────────────────────────────────
   function handleAskCancel(id) {
     setConfirmCancelId(id);
+    setShowDetalle(false);
   }
 
   async function handleConfirmCancel() {
@@ -129,30 +170,28 @@ export default function PedidosContainer() {
     try {
       await cancelPedido(confirmCancelId);
       await loadPedidos();
-    } catch {
-      setError("Error al cancelar el pedido.");
+    } catch (err) {
+      setError(err.message ?? "Error al cancelar el pedido.");
     } finally {
       setSaving(false);
       setConfirmCancelId(null);
     }
   }
 
-  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <PedidosView
-      // data
-      pedidos={pedidos}
+      pedidos={pedidosFiltrados}
       loading={loading}
       saving={saving}
       error={error}
-      // filters
       filterStatus={filterStatus}
       filterFechaDesde={filterFechaDesde}
       filterFechaHasta={filterFechaHasta}
       onFilterStatus={setFilterStatus}
       onFilterFechaDesde={setFilterFechaDesde}
       onFilterFechaHasta={setFilterFechaHasta}
-      // modal
+      searchClienteId={searchClienteId}
+      onSearchClienteId={setSearchClienteId}
       modalMode={modalMode}
       form={form}
       formErrors={formErrors}
@@ -161,7 +200,11 @@ export default function PedidosContainer() {
       onCloseModal={handleCloseModal}
       onFormChange={handleFormChange}
       onSubmit={handleSubmit}
-      // cancel confirm
+      showDetalle={showDetalle}
+      detallePedido={detallePedido}
+      loadingDetalle={loadingDetalle}
+      onOpenDetalle={handleOpenDetalle}
+      onCloseDetalle={handleCloseDetalle}
       confirmCancelId={confirmCancelId}
       onAskCancel={handleAskCancel}
       onConfirmCancel={handleConfirmCancel}

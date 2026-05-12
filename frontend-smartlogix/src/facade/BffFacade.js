@@ -1,57 +1,168 @@
-// src/facade/BffFacade.js
+/**
+ * BffFacade.js — SmartLogix
+ * Capa centralizada de comunicación con el API Gateway (puerto 8080).
+ * Todos los containers importan desde aquí. Nunca usan fetch directamente.
+ *
+ * Arquitectura:
+ *   Browser → API Gateway (:8080) → bff-service / pedidos-service / auth-service
+ */
 
-// En el futuro, esta será la URL de tu API Gateway (puerto 8080)
-const API_URL = 'http://localhost:8080/api/v1';
+// ── Configuración ─────────────────────────────────────────────────────────────
+const GATEWAY_URL  = import.meta.env.VITE_GATEWAY_URL  ?? "http://localhost:8080";
+const AUTH_URL     = `${GATEWAY_URL}/auth`;
+const BFF_URL      = `${GATEWAY_URL}/bff`;
+const PEDIDOS_URL  = `${GATEWAY_URL}/api/pedidos`;
 
-export const bffFacade = {
-  
-  // Método para obtener los datos del Dashboard
-  getDashboardData: async () => {
-    try {
-      /* =========================================================
-         CÓDIGO FUTURO (Para cuando el Backend Spring Boot esté listo):
-         const response = await fetch(`${API_URL}/dashboard`);
-         if (!response.ok) throw new Error('Error al conectar con el BFF');
-         return await response.json();
-      ========================================================= */
+// ── Token helpers ─────────────────────────────────────────────────────────────
+export function getToken()          { return localStorage.getItem("smartlogix_token"); }
+export function setToken(token)     { localStorage.setItem("smartlogix_token", token); }
+export function removeToken()       { localStorage.removeItem("smartlogix_token"); }
+export function isAuthenticated()   { return !!getToken(); }
 
-      // CÓDIGO ACTUAL (Simulación para no bloquear el desarrollo Frontend):
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            kpis: [
-              { id: "orders", label: "Pedidos Hoy", value: "1,284", delta: "+12%", trend: "up", icon: "🛒", color: "blue" },
-              { id: "revenue", label: "Ingresos del Día", value: "$48,320", delta: "+8.4%", trend: "up", icon: "💰", color: "emerald" },
-              { id: "stock", label: "Alertas de Stock", value: "7", delta: "-2 vs ayer", trend: "down", icon: "📦", color: "amber" },
-              { id: "shipments", label: "Envíos en Tránsito", value: "342", delta: "+5%", trend: "up", icon: "🚚", color: "violet" },
-            ],
-            recentOrders: [
-              { id: "ORD-9021", client: "Distribuidora Norte", items: 14, total: "$2,450", status: "CONFIRMED", time: "Hace 3 min" },
-              { id: "ORD-9020", client: "Mercados del Sur S.A.", items: 6, total: "$890", status: "PENDING", time: "Hace 11 min" },
-              { id: "ORD-9019", client: "Insumos Médicos", items: 120, total: "$12,400", status: "CANCELLED", time: "Hace 45 min" },
-            ],
-            stockAlerts: [
-              { sku: "SKU-4412", name: "Caja Cartón 50x40", stock: 3, min: 20, warehouse: "Bodega A" },
-              { sku: "SKU-2201", name: "Pallet Madera Std", stock: 7, min: 15, warehouse: "Bodega B" },
-              { sku: "SKU-8834", name: "Film Stretch 500m", stock: 1, min: 10, warehouse: "Bodega A" },
-            ],
-            activityFeed: [
-              { id: 1, type: "order", msg: "Pedido ORD-9021 confirmado por Saga", time: "03:14" },
-              { id: 2, type: "stock", msg: "Stock crítico en SKU-8834 detectado", time: "03:02" },
-              { id: 3, type: "ship", msg: "Envío SHP-441 despachado desde Bodega A", time: "02:50" },
-              { id: 4, type: "order", msg: "Pedido ORD-9018 compensado (CANCELLED)", time: "02:31" },
-            ]
-          });
-        }, 900); // Simulamos 900ms de latencia de red
-      });
+/**
+ * Decodifica el payload del JWT sin verificar firma (solo para leer claims en el cliente).
+ * La verificación real ocurre en el API Gateway.
+ */
+export function decodeTokenPayload() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1];
+    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+  } catch {
+    return null;
+  }
+}
 
-    } catch (error) {
-      console.error("BffFacade Error:", error);
-      throw error;
-    }
-  },
+/**
+ * Verifica si el token ha expirado (claim `exp` en segundos Unix).
+ */
+export function isTokenExpired() {
+  const payload = decodeTokenPayload();
+  if (!payload?.exp) return true;
+  return Date.now() / 1000 > payload.exp;
+}
 
-  // Aquí agregaremos en el futuro los métodos de compensación de la Saga:
-  // forzarReintentoSaga: async (pedidoId) => { ... },
-  // cancelarPedidoSaga: async (pedidoId) => { ... }
-};
+// ── Base fetch con Authorization header ───────────────────────────────────────
+async function apiFetch(url, options = {}) {
+  const token = getToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const res = await fetch(url, { ...options, headers });
+
+  // Token expirado / inválido → forzar logout
+  if (res.status === 401) {
+    removeToken();
+    window.dispatchEvent(new Event("smartlogix:unauthorized"));
+    throw new Error("Sesión expirada. Por favor inicia sesión nuevamente.");
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message ?? `Error ${res.status}: ${res.statusText}`);
+  }
+
+  // 204 No Content
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// AUTH
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * POST /auth/login
+ * @param {{ username: string, password: string }} credentials
+ * @returns {{ token: string, user: { name: string, role: string } }}
+ */
+export async function login({ username, password }) {
+  const data = await apiFetch(`${AUTH_URL}/login`, {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+  setToken(data.token);
+  return data;
+}
+
+/**
+ * Cierra sesión eliminando el token local.
+ */
+export function logout() {
+  removeToken();
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// BFF — Dashboard
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /bff/dashboard
+ * Retorna KPIs, pedidos recientes, alertas de stock y actividad del sistema.
+ */
+export async function getDashboardData() {
+  return apiFetch(`${BFF_URL}/dashboard`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PEDIDOS — pedidos-service vía Gateway
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /api/pedidos
+ * @param {{ sagaStatus?: string, clienteId?: string, fechaDesde?: string, fechaHasta?: string }} filters
+ */
+export async function getPedidos(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.sagaStatus && filters.sagaStatus !== "ALL") params.set("sagaStatus", filters.sagaStatus);
+  if (filters.clienteId?.trim())  params.set("clienteId",  filters.clienteId.trim());
+  if (filters.fechaDesde)         params.set("fechaDesde",  filters.fechaDesde);
+  if (filters.fechaHasta)         params.set("fechaHasta",  filters.fechaHasta);
+
+  const qs = params.toString();
+  return apiFetch(`${PEDIDOS_URL}${qs ? `?${qs}` : ""}`);
+}
+
+/**
+ * GET /api/pedidos/:id
+ * Incluye `motivoFallo` cuando sagaStatus === "CANCELLED".
+ */
+export async function getPedidoById(id) {
+  return apiFetch(`${PEDIDOS_URL}/${id}`);
+}
+
+/**
+ * POST /api/pedidos
+ * @param {{ clienteId: string, items: number, total: number, fecha: string }} payload
+ */
+export async function createPedido(payload) {
+  return apiFetch(PEDIDOS_URL, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * PATCH /api/pedidos/:id
+ * @param {string} id
+ * @param {{ clienteId?: string, items?: number, total?: number, fecha?: string }} payload
+ */
+export async function updatePedido(id, payload) {
+  return apiFetch(`${PEDIDOS_URL}/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * POST /api/pedidos/:id/cancel
+ * Inicia la transacción de compensación Saga en el pedidos-service.
+ */
+export async function cancelPedido(id) {
+  return apiFetch(`${PEDIDOS_URL}/${id}/cancel`, { method: "POST" });
+}
