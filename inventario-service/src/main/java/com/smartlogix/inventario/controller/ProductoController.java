@@ -35,6 +35,20 @@ public class ProductoController {
         }
     }
 
+    @PutMapping("/restaurar-stock")
+    public ResponseEntity<Void> restaurarStock(
+            @RequestParam("codigo") String codigo,
+            @RequestParam("cantidad") Integer cantidad) {
+        try {
+            // Llamamos al servicio para que sume el stock de vuelta
+            // OJO: Debes asegurarte de que tu ProductoService tenga este método creado
+            productoService.aumentarStockGlobal(codigo, cantidad);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @GetMapping
     public List<Producto> findAll() {
         return productoService.findAll();
