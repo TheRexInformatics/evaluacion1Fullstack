@@ -1,3 +1,0 @@
-com\smartlogix\auth\controller\AuthController.class
-com\smartlogix\auth\AuthServiceApplication.class
-com\smartlogix\auth\security\JwtProvider.class

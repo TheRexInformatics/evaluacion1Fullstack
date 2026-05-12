@@ -6,11 +6,11 @@ spring:
     name: inventario-service
 
   datasource:
-    url: ${NEON_INVENTARIO_URL:jdbc:postgresql://db-inventario:5432/smartlogix_inventario}
-    username: ${NEON_INVENTARIO_USER:user_logix}
-    password: ${NEON_INVENTARIO_PASSWORD:password123}
+    # URL corregida con el prefijo jdbc: indispensable para Java
+    url: jdbc:postgresql://ep-wandering-smoke-aqsjl5o5-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require
+    username: neondb_owner
+    password: npg_L6Is0UHhWAQd
     driver-class-name: org.postgresql.Driver
-
   jpa:
     hibernate:
       ddl-auto: update

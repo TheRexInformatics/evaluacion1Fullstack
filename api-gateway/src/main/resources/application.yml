@@ -33,6 +33,11 @@ spring:
             predicates:
               - Path=/api/bff/**
 
+          - id: auth-service
+            uri: http://localhost:8085 # <--- ASEGÚRATE QUE DIGA 8085
+            predicates:
+              - Path=/auth/**
+
       globalcors:
         cors-configurations:
           "[/**]":
