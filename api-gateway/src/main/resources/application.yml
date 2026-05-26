@@ -8,10 +8,16 @@ spring:
     gateway:
       mvc:
         routes:
-          - id: inventario-service
+          # Separamos Inventario en dos reglas independientes para que WebMVC no se confunda
+          - id: inventario-productos
             uri: http://inventario-service:8081
             predicates:
-              - Path=/api/productos/**, /api/stocks/**
+              - Path=/api/productos/**
+
+          - id: inventario-stocks
+            uri: http://inventario-service:8081
+            predicates:
+              - Path=/api/stocks/**
 
           - id: pedidos-service
             uri: http://pedidos-service:8082
