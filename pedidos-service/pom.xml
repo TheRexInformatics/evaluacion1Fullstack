@@ -49,6 +49,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.5.0</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -99,6 +105,7 @@
 					<excludes>
 						<!-- Ajusta estos paquetes al nombre de TU proyecto -->
 						<exclude>com.smartlogix.pedidos.PedidosServiceApplication.class</exclude>
+						<exclude>com/smartlogix/pedidos/config/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>

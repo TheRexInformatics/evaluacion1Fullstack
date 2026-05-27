@@ -4,28 +4,27 @@ server:
 spring:
   application:
     name: pedidos-service
+
   datasource:
-    url: jdbc:postgresql://db-pedidos:5432/smartlogix_pedidos
+    # Conexión local usando el puerto externo 5434 que vimos en tu docker ps
+    url: jdbc:postgresql://localhost:5434/smartlogix_pedidos
     username: user_logix
     password: password123
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-inventario:
-  service:
-    url: ${INVENTARIO_SERVICE_URL:http://inventario-service:8081}
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+    tagsSorter: alpha
 
-feign:
-  circuitbreaker:
-    enabled: true
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
+logging:
+  level:
+    com.smartlogix.pedidos: DEBUG
