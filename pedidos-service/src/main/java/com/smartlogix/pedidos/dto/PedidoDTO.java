@@ -1,23 +1,19 @@
-package com.smartlogix.pedidos.model;
+package com.smartlogix.pedidos.dto;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
-@Entity
 @Data
-@Table(name = "pedidos")
-public class Pedido {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@AllArgsConstructor
+@NoArgsConstructor
+public class PedidoDTO {
     private Long id;
-
     private Long productoId;
     private String codigoProducto;
     private Integer cantidad;
     private BigDecimal total;
     private String estado;
-
-    @Column(name = "saga_status")
     private String sagaStatus;
 }

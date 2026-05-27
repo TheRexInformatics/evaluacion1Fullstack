@@ -6,29 +6,41 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      routes:
-        - id: inventario-service
-          uri: http://inventario-service:8081
-          predicates:
-            - Path=/api/productos/**, /api/stocks/**
-          filters:
-            - StripPrefix=0
+      mvc:
+        routes:
+          - id: inventario-productos
+            uri: http://localhost:8081
+            predicates:
+              - Path=/api/productos/**
 
-        - id: pedidos-service
-          uri: http://pedidos-service:8082
-          predicates:
-            - Path=/api/pedidos/**
-          filters:
-            - StripPrefix=0
+          - id: inventario-stocks
+            uri: http://localhost:8081
+            predicates:
+              - Path=/api/stocks/**
 
-        - id: envios-service
-          uri: http://envios-service:8083
-          predicates:
-            - Path=/api/envios/**
+          - id: pedidos-service
+            uri: http://localhost:8082
+            predicates:
+              - Path=/api/pedidos/**
+
+          - id: envios-service
+            uri: http://localhost:8083
+            predicates:
+              - Path=/api/envios/**
+
+          - id: bff-service
+            uri: http://localhost:8084
+            predicates:
+              - Path=/api/bff/**
+
+          - id: auth-service
+            uri: http://localhost:8085 # <--- ASEGÚRATE QUE DIGA 8085
+            predicates:
+              - Path=/auth/**
 
       globalcors:
         cors-configurations:
-          '[/**]':
+          "[/**]":
             allowedOrigins: "*"
             allowedMethods: "*"
             allowedHeaders: "*"
@@ -37,3 +49,8 @@ logging:
   level:
     org.springframework.cloud.gateway: TRACE
     org.springframework.http.server.reactive: DEBUG
+
+  # Configuración JWT
+jwt:
+  secret: SmartLogixSecretKeyUltraSegura2026ParaDesarrolloLocal
+  expiration: 3600000 # 1 hora en milisegundos

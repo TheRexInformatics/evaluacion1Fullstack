@@ -85,7 +85,8 @@ public class ProductoServiceImpl implements ProductoService {
         int pendientePorReducir = cantidad;
 
         for (Stock stock : stocks) {
-            if (pendientePorReducir <= 0) break;
+            if (pendientePorReducir <= 0)
+                break;
 
             int cantidadEnBodega = stock.getCantidad();
 
@@ -103,5 +104,31 @@ public class ProductoServiceImpl implements ProductoService {
             throw new RuntimeException("Stock insuficiente para el SKU: " + sku +
                     ". Faltaron " + pendientePorReducir + " unidades por cubrir.");
         }
+    }
+
+    @Override
+    @Transactional
+    public void aumentarStockGlobal(String sku, Integer cantidad) {
+        // 1. Buscamos que el producto exista
+        Producto prod = productoRepository.findBySku(sku)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con SKU: " + sku));
+
+        // 2. Buscamos dónde está guardado este producto (sus registros en bodegas)
+        List<Stock> stocks = stockRepository.findAll().stream()
+                .filter(s -> s.getProducto().getId().equals(prod.getId()))
+                .toList();
+
+        // 3. Validamos que tenga al menos un registro de bodega
+        if (stocks.isEmpty()) {
+            throw new RuntimeException("No existe registro de bodega para devolver el stock del SKU: " + sku);
+        }
+
+        // 4. Para la compensación, devolvemos todo el stock a la primera bodega
+        // encontrada
+        Stock stockPrincipal = stocks.get(0);
+        stockPrincipal.setCantidad(stockPrincipal.getCantidad() + cantidad);
+
+        // 5. Guardamos el cambio
+        stockRepository.save(stockPrincipal);
     }
 }

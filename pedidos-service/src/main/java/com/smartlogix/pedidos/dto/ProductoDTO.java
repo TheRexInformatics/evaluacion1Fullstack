@@ -1,4 +1,4 @@
-package com.smartlogix.pedidos.model;
+package com.smartlogix.pedidos.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
