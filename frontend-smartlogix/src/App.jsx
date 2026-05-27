@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { isAuthenticated, isTokenExpired, logout, decodeTokenPayload } from "./facade/BffFacade";
+import { isAuthenticated as checkAuthFacade, isTokenExpired, logout, decodeTokenPayload } from "./facade/BffFacade";
 
 // Containers
 import LoginContainer     from "./containers/LoginContainer";
@@ -24,24 +24,20 @@ function PlaceholderSection({ section }) {
   );
 }
 
-/* ── Verificación del token ─────────────────────────────────────────────── */
-function checkAuth() {
-  return isAuthenticated() && !isTokenExpired();
-}
-
 /* ── App root ───────────────────────────────────────────────────────────── */
 export default function App() {
-  const [authenticated,  setAuthenticated]  = useState(checkAuth);
-  const [activeSection,  setActiveSection]  = useState("Dashboard");
+  // Corregido: usamos sistemáticamente isAuthenticated y setIsAuthenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('smartlogix_token'));
+  const [activeSection, setActiveSection] = useState("Dashboard");
 
   // Leer nombre del usuario desde el payload del JWT
-  const tokenPayload = authenticated ? decodeTokenPayload() : null;
+  const tokenPayload = isAuthenticated ? decodeTokenPayload() : null;
   const userName     = tokenPayload?.name ?? tokenPayload?.sub ?? "Admin";
 
   // Escucha el evento global que dispara BffFacade cuando recibe un 401
   useEffect(() => {
     function handleUnauthorized() {
-      setAuthenticated(false);
+      setIsAuthenticated(false);
     }
     window.addEventListener("smartlogix:unauthorized", handleUnauthorized);
     return () => window.removeEventListener("smartlogix:unauthorized", handleUnauthorized);
@@ -49,22 +45,22 @@ export default function App() {
 
   // Verificación periódica de expiración del token (cada 60 s)
   useEffect(() => {
-    if (!authenticated) return;
+    if (!isAuthenticated) return;
     const id = setInterval(() => {
       if (isTokenExpired()) {
         logout();
-        setAuthenticated(false);
+        setIsAuthenticated(false);
       }
     }, 60_000);
     return () => clearInterval(id);
-  }, [authenticated]);
+  }, [isAuthenticated]);
 
   /* ── Login ─────────────────────────────────────────────────────────────── */
-  if (!authenticated) {
+  if (!isAuthenticated) {
     return (
       <LoginContainer
         onLoginSuccess={() => {
-          setAuthenticated(true);
+          setIsAuthenticated(true);
           setActiveSection("Dashboard");
         }}
       />
@@ -74,7 +70,7 @@ export default function App() {
   /* ── Layout principal (autenticado) ─────────────────────────────────────── */
   function handleLogout() {
     logout();
-    setAuthenticated(false);
+    setIsAuthenticated(false);
   }
 
   return (

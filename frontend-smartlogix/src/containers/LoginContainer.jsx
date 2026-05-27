@@ -1,44 +1,52 @@
-import { useState } from "react";
-import { login } from "../facade/BffFacade";
-import LoginView from "../components/LoginView";
+import { useState } from 'react';
+import LoginView from '../components/LoginView';
 
-/**
- * LoginContainer
- * Responsabilidades:
- *  - Manejar el estado del formulario (username, password, error, loading)
- *  - Llamar a BffFacade.login() → POST /auth/login
- *  - En éxito: el token queda en localStorage (lo hace la facade) y se notifica al padre
- *
- * @param {{ onLoginSuccess: () => void }} props
- */
 export default function LoginContainer({ onLoginSuccess }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error,    setError]    = useState(null);
-  const [loading,  setLoading]  = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit() {
-    if (!username.trim() || !password) return;
-    setError(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
+    setError(null);
+
     try {
-      await login({ username: username.trim(), password });
+      // Llamada real al API Gateway
+      const response = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (!response.ok) {
+        throw new Error('Credenciales inválidas o error de conexión');
+      }
+
+      const data = await response.json();
+      
+      // Guardamos el token JWT de forma segura
+      localStorage.setItem('smartlogix_token', data.token);
+      
+      // Le avisamos a App.jsx que el login fue exitoso
       onLoginSuccess();
+      
     } catch (err) {
-      setError(err.message ?? "Credenciales incorrectas. Inténtalo de nuevo.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <LoginView
+    <LoginView 
       username={username}
+      setUsername={setUsername}
       password={password}
+      setPassword={setPassword}
       error={error}
       loading={loading}
-      onUsernameChange={setUsername}
-      onPasswordChange={setPassword}
       onSubmit={handleSubmit}
     />
   );
