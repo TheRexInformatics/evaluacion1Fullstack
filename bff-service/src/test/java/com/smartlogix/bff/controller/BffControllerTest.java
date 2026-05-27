@@ -35,10 +35,8 @@ class BffControllerTest {
                 .build();
 
         when(bffService.obtenerResumenCompleto(100L)).thenReturn(mockResumen);
-
         // Ejecutamos el controlador
         ResponseEntity<ResumenCompraDTO> response = bffController.getResumen(100L);
-
         // Verificamos
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

@@ -13,7 +13,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   datasource:
-    url: jdbc:postgresql://db-envios:5432/smartlogix_envios
+    url: jdbc:postgresql://localhost:5435/smartlogix_envios
     username: user_logix
     password: password123
     driver-class-name: org.postgresql.Driver

@@ -52,6 +52,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.5.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -90,6 +96,8 @@
 					<excludes>
 						<exclude>com/smartlogix/envios/EnviosServiceApplication.class</exclude>
 						<exclude>com/smartlogix/envios/model/**</exclude>
+						<exclude>com/smartlogix/envios/dto/**</exclude>
+						<exclude>com/smartlogix/envios/config/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>
