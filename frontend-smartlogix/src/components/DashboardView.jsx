@@ -60,7 +60,7 @@ export default function DashboardView({ loading, error, data, activeSection }) {
               {loading ? (
                 <GenericSkeleton rows={3} />
               ) : (
-                <StockAlertsList alerts={data?.stockAlerts ?? []} />
+                {/* <StockAlertsList alerts={data?.stockAlerts ?? []} /> */}
               )}
             </div>
           </section>

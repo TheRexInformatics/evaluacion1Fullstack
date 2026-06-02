@@ -5,9 +5,9 @@ spring:
   application:
     name: pedidos-service
   datasource:
-    url: ${NEON_PEDIDOS_URL:jdbc:postgresql://db-pedidos:5432/smartlogix_pedidos}
-    username: ${NEON_PEDIDOS_USER:user_logix}
-    password: ${NEON_PEDIDOS_PASSWORD:password123}
+    url: jdbc:postgresql://ep-wandering-smoke-aqsjl5o5-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require
+    username: neondb_owner
+    password: npg_L6Is0UHhWAQd
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
