@@ -3,6 +3,7 @@ package com.smartlogix.envios.controller;
 import com.smartlogix.envios.model.Envio;
 import com.smartlogix.envios.model.EstadoEnvio;
 import com.smartlogix.envios.service.EnvioService;
+import com.smartlogix.envios.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,8 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -31,9 +31,12 @@ class EnvioControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Inicializamos un objeto genérico para evitar errores de compilación por falta de setters
         envioMock = new Envio();
     }
+
+    // ==========================================
+    // TESTS PARA: crearEnvio
+    // ==========================================
 
     @Test
     void crearEnvio_DebeRetornarEnvioYStatus200() {
@@ -44,6 +47,10 @@ class EnvioControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
     }
+
+    // ==========================================
+    // TESTS PARA: obtenerEnvioPorPedido
+    // ==========================================
 
     @Test
     void obtenerEnvioPorPedido_DebeRetornarEnvioYStatus200() {
@@ -56,14 +63,36 @@ class EnvioControllerTest {
     }
 
     @Test
+    void obtenerEnvioPorPedido_NoExiste_LanzaResourceNotFoundException() {
+        // ✔️ Al retornar null obligamos al flujo a entrar al 'if (envio == null)' del controlador
+        when(envioService.obtenerPorPedidoId(999L)).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            envioController.obtenerEnvioPorPedido(999L);
+        });
+    }
+
+    // ==========================================
+    // TESTS PARA: actualizarEstado
+    // ==========================================
+
+    @Test
     void actualizarEstado_DebeRetornarEnvioYStatus200() {
-        // Usamos any() para evadir cualquier choque con los valores exactos de tu Enum
         when(envioService.actualizarEstado(eq(1L), any(), eq("FedEx"))).thenReturn(envioMock);
 
-        // Hacemos un cast de null a EstadoEnvio para asegurar compatibilidad de tipos
         ResponseEntity<Envio> response = envioController.actualizarEstado(1L, (EstadoEnvio) null, "FedEx");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
+    }
+
+    @Test
+    void actualizarEstado_EnvioNoExiste_LanzaResourceNotFoundException() {
+        // ✔️ Al retornar null obligamos al flujo a entrar al 'if (envioActualizado == null)' del controlador
+        when(envioService.actualizarEstado(eq(999L), any(), eq("FedEx"))).thenReturn(null);
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            envioController.actualizarEstado(999L, (EstadoEnvio) null, "FedEx");
+        });
     }
 }

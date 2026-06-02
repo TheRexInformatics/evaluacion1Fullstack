@@ -2,6 +2,7 @@ package com.smartlogix.inventario.controller;
 
 import com.smartlogix.inventario.model.Stock;
 import com.smartlogix.inventario.service.StockService;
+import com.smartlogix.inventario.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -68,9 +69,9 @@ class StockControllerTest {
     void findByProductoAndBodega_NoExiste_Devuelve404() {
         when(stockService.findByProductoAndBodega(1L, 2L)).thenReturn(Optional.empty());
 
-        ResponseEntity<Stock> response = stockController.findByProductoAndBodega(1L, 2L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            stockController.findByProductoAndBodega(1L, 2L);
+        });
     }
 
     @Test
@@ -95,9 +96,9 @@ class StockControllerTest {
     void registrarSalida_Error_Devuelve400() {
         when(stockService.registrarSalida(1L, 2L, 500)).thenThrow(new RuntimeException("No hay stock"));
 
-        ResponseEntity<Stock> response = stockController.registrarSalida(1L, 2L, 500);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertThrows(RuntimeException.class, () -> {
+            stockController.registrarSalida(1L, 2L, 500);
+        });
     }
 
     @Test

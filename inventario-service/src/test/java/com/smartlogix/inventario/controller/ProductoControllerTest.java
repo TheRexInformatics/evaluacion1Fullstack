@@ -2,6 +2,7 @@ package com.smartlogix.inventario.controller;
 
 import com.smartlogix.inventario.model.Producto;
 import com.smartlogix.inventario.service.ProductoService;
+import com.smartlogix.inventario.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,9 +62,9 @@ class ProductoControllerTest {
     void reducirStock_Error_Devuelve400() {
         doThrow(new RuntimeException("Stock insuficiente")).when(productoService).reducirStockGlobal("SKU-123", 100);
 
-        ResponseEntity<Void> response = productoController.reducirStock("SKU-123", 100);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertThrows(RuntimeException.class, () -> {
+            productoController.reducirStock("SKU-123", 100);
+        });
     }
 
     @Test
@@ -90,9 +91,9 @@ class ProductoControllerTest {
     void findById_NoExiste_Devuelve404() {
         when(productoService.findById(99L)).thenReturn(Optional.empty());
 
-        ResponseEntity<Producto> response = productoController.findById(99L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            productoController.findById(99L);
+        });
     }
 
     @Test
@@ -108,9 +109,9 @@ class ProductoControllerTest {
     void findBySku_NoExiste_Devuelve404() {
         when(productoService.findBySku("NO-EXISTE")).thenReturn(Optional.empty());
 
-        ResponseEntity<Producto> response = productoController.findBySku("NO-EXISTE");
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            productoController.findBySku("NO-EXISTE");
+        });
     }
 
     @Test
@@ -136,9 +137,9 @@ class ProductoControllerTest {
     void update_Error_Devuelve404() {
         when(productoService.update(eq(99L), any(Producto.class))).thenThrow(new RuntimeException("Not found"));
 
-        ResponseEntity<Producto> response = productoController.update(99L, new Producto());
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertThrows(RuntimeException.class, () -> {
+            productoController.update(99L, new Producto());
+        });
     }
 
     @Test

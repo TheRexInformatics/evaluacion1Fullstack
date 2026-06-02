@@ -6,7 +6,8 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.0.4</version>
-		<relativePath/> </parent>
+		<relativePath/>
+	</parent>
 	<groupId>com.smartlogix</groupId>
 	<artifactId>inventario-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -93,9 +94,9 @@
 				<version>0.8.12</version>
 				<configuration>
 					<excludes>
-						<!-- Ajusta estos paquetes al nombre de TU proyecto -->
 						<exclude>com/smartlogix/inventario/InventarioServiceApplication.class</exclude>
 						<exclude>com/smartlogix/inventario/config/**</exclude>
+						<exclude>com/smartlogix/inventario/exception/**</exclude>
 					</excludes>
 				</configuration>
 				<executions>

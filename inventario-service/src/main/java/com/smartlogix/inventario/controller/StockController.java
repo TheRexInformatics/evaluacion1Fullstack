@@ -2,6 +2,7 @@ package com.smartlogix.inventario.controller;
 
 import com.smartlogix.inventario.model.Stock;
 import com.smartlogix.inventario.service.StockService;
+import com.smartlogix.inventario.exception.ResourceNotFoundException; // <-- Importación añadida
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,8 @@ public class StockController {
                                                          @PathVariable Long bodegaId) {
         return stockService.findByProductoAndBodega(productoId, bodegaId)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se encontró stock para el producto " + productoId + " en la bodega " + bodegaId));
     }
 
     @PostMapping("/entrada")
@@ -44,12 +46,10 @@ public class StockController {
     public ResponseEntity<Stock> registrarSalida(@RequestParam Long productoId,
                                                  @RequestParam Long bodegaId,
                                                  @RequestParam Integer cantidad) {
-        try {
-            Stock stock = stockService.registrarSalida(productoId, bodegaId, cantidad);
-            return ResponseEntity.ok(stock);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        // Al quitar el try-catch, si no hay suficiente stock en esa bodega,
+        // la excepción de negocio sube limpia al manejador global.
+        Stock stock = stockService.registrarSalida(productoId, bodegaId, cantidad);
+        return ResponseEntity.ok(stock);
     }
 
     @PutMapping("/actualizar")

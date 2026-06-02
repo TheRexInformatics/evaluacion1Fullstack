@@ -2,6 +2,7 @@ package com.smartlogix.inventario.controller;
 
 import com.smartlogix.inventario.model.Producto;
 import com.smartlogix.inventario.service.ProductoService;
+import com.smartlogix.inventario.exception.ResourceNotFoundException; // <-- Importación añadida
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,21 +18,19 @@ public class ProductoController {
 
     @GetMapping("/check-stock")
     public ResponseEntity<Boolean> checkStock(
-            @RequestParam("sku") String sku, // Cambiado de "codigo" a "sku"
+            @RequestParam("sku") String sku,
             @RequestParam("cantidad") Integer cantidad) {
         return ResponseEntity.ok(productoService.verificarStockTotal(sku, cantidad));
     }
 
     @PutMapping("/reducir-stock")
     public ResponseEntity<Void> reducirStock(
-            @RequestParam("sku") String sku, // Cambiado de "codigo" a "sku"
+            @RequestParam("sku") String sku,
             @RequestParam("cantidad") Integer cantidad) {
-        try {
-            productoService.reducirStockGlobal(sku, cantidad);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        // Dejamos que el service lance su RuntimeException (ej. "Stock insuficiente")
+        // Tu GlobalException la atrapará como un 500 o puedes mapearla luego.
+        productoService.reducirStockGlobal(sku, cantidad);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
@@ -43,14 +42,14 @@ public class ProductoController {
     public ResponseEntity<Producto> findById(@PathVariable Long id) {
         return productoService.findById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("El producto con ID " + id + " no existe."));
     }
 
     @GetMapping("/sku/{sku}")
     public ResponseEntity<Producto> findBySku(@PathVariable String sku) {
         return productoService.findBySku(sku)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new ResourceNotFoundException("El producto con SKU " + sku + " no existe."));
     }
 
     @PostMapping
@@ -61,12 +60,9 @@ public class ProductoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
-        try {
-            Producto updated = productoService.update(id, producto);
-            return ResponseEntity.ok(updated);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        // Si el service no lo encuentra, internamente debería lanzar una excepción o nosotros validarla aquí
+        Producto updated = productoService.update(id, producto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")

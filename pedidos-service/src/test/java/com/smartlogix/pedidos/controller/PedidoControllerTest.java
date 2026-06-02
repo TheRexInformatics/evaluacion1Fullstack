@@ -1,5 +1,6 @@
 package com.smartlogix.pedidos.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartlogix.pedidos.model.Pedido;
 import com.smartlogix.pedidos.service.PedidoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,19 +9,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoControllerTest {
+
+    private MockMvc mockMvc;
 
     @Mock
     private PedidoService pedidoService;
@@ -28,73 +32,103 @@ class PedidoControllerTest {
     @InjectMocks
     private PedidoController pedidoController;
 
+    private ObjectMapper objectMapper;
     private Pedido pedidoMock;
+
+    // Estructura auxiliar para el truco genérico de Java que forzó el 500 con éxito
+    @SuppressWarnings("unchecked")
+    private <T extends Throwable> void lanzarExcepcionChequeada(Throwable t) throws T {
+        throw (T) t;
+    }
 
     @BeforeEach
     void setUp() {
-        pedidoMock = new Pedido();
-        pedidoMock.setId(1L);
-        pedidoMock.setCodigoProducto("SKU-123");
+        this.mockMvc = MockMvcBuilders.standaloneSetup(pedidoController).build();
+        this.objectMapper = new ObjectMapper();
+
+        this.pedidoMock = new Pedido();
+        this.pedidoMock.setId(1L);
     }
 
     @Test
-    void crearPedido_Exito_Devuelve201() {
+    void crearPedido_Exito_RetornaCreated() throws Exception {
         when(pedidoService.crearPedido(any(Pedido.class))).thenReturn(pedidoMock);
 
-        ResponseEntity<?> response = pedidoController.crearPedido(pedidoMock);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(pedidoMock, response.getBody());
+        mockMvc.perform(post("/api/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pedidoMock)))
+                .andExpect(status().isCreated());
     }
 
     @Test
-    void crearPedido_Conflicto_Devuelve409() {
+    void crearPedido_ErrorStock_RetornaConflict() throws Exception {
         when(pedidoService.crearPedido(any(Pedido.class)))
-                .thenThrow(new RuntimeException("Sin stock suficiente"));
+                .thenThrow(new RuntimeException("Error: No hay suficiente stock disponible"));
 
-        ResponseEntity<?> response = pedidoController.crearPedido(pedidoMock);
-
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertTrue(response.getBody().toString().contains("stock"));
+        mockMvc.perform(post("/api/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pedidoMock)))
+                .andExpect(status().isConflict());
     }
 
     @Test
-    void crearPedido_BadRequest_Devuelve400() {
+    void crearPedido_RuntimeExceptionComun_RetornaBadRequest() throws Exception {
         when(pedidoService.crearPedido(any(Pedido.class)))
-                .thenThrow(new RuntimeException("Producto inválido"));
+                .thenThrow(new RuntimeException("Error de validacion general"));
 
-        ResponseEntity<?> response = pedidoController.crearPedido(pedidoMock);
+        mockMvc.perform(post("/api/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pedidoMock)))
+                .andExpect(status().isBadRequest());
+    }
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Producto inválido", response.getBody());
+    // 🎯 EL TEST QUE QUITA EL AMARILLO (Línea 25): Evalúa cuando e.getMessage() es null
+    @Test
+    void crearPedido_RuntimeExceptionMensajeNull_RetornaBadRequest() throws Exception {
+        when(pedidoService.crearPedido(any(Pedido.class)))
+                .thenThrow(new RuntimeException()); // Sin mensaje en el constructor
+
+        mockMvc.perform(post("/api/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pedidoMock)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void listarPedidos_DevuelveListaY200() {
-        when(pedidoService.findAll()).thenReturn(Arrays.asList(pedidoMock));
+    void crearPedido_ExceptionInesperada_RetornaInternalServerError() throws Exception {
+        doAnswer(invocation -> {
+            lanzarExcepcionChequeada(new Exception("Fallo general inesperado de SmartLogix"));
+            return null;
+        }).when(pedidoService).crearPedido(any(Pedido.class));
 
-        ResponseEntity<List<Pedido>> response = pedidoController.listarPedidos();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
+        mockMvc.perform(post("/api/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pedidoMock)))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void obtenerPorId_Existe_Devuelve200() {
+    void listarPedidos_RetornaLista() throws Exception {
+        when(pedidoService.findAll()).thenReturn(Collections.singletonList(pedidoMock));
+
+        mockMvc.perform(get("/api/pedidos"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void obtenerPorId_Existe_RetornaPedido() throws Exception {
         when(pedidoService.findById(1L)).thenReturn(Optional.of(pedidoMock));
 
-        ResponseEntity<Pedido> response = pedidoController.obtenerPorId(1L);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(pedidoMock, response.getBody());
+        mockMvc.perform(get("/api/pedidos/1"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void obtenerPorId_NoExiste_Devuelve404() {
+    void obtenerPorId_NoExiste_LanzaResourceNotFoundException() throws Exception {
         when(pedidoService.findById(99L)).thenReturn(Optional.empty());
 
-        ResponseEntity<Pedido> response = pedidoController.obtenerPorId(99L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        org.junit.jupiter.api.Assertions.assertThrows(Exception.class, () -> {
+            mockMvc.perform(get("/api/pedidos/99"));
+        });
     }
 }

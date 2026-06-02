@@ -6,7 +6,6 @@ spring:
     name: pedidos-service
 
   datasource:
-    # Conexión local usando el puerto externo 5434 que vimos en tu docker ps
     url: jdbc:postgresql://localhost:5434/smartlogix_pedidos
     username: user_logix
     password: password123
