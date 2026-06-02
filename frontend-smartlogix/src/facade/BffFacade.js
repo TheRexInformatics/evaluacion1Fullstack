@@ -137,3 +137,34 @@ export async function getDashboardKPIs() {
 export async function getDetallePedido(id) {
   return await fetchWithAuth(`/pedidos/${id}`);
 }
+
+
+// ============================================================================
+// 🚀 OBJETO FACADE (Para retrocompatibilidad con los Contenedores)
+// ============================================================================
+
+export const bffFacade = {
+  getDashboardData: async () => {
+    try {
+      // 1. Traemos los datos reales de tus microservicios a través del Gateway
+      const kpisData = await getDashboardKPIs();
+      const pedidos = await getPedidos();
+      
+      // 2. Armamos el objeto exactamente como lo espera DashboardView.jsx
+      return {
+        kpis: [
+          { id: 1, title: "Total Pedidos", value: kpisData.totalPedidos || 0, change: "+5%", positive: true },
+          { id: 2, title: "Ingresos", value: `$${kpisData.ingresos || 0}`, change: "+12%", positive: true },
+          { id: 3, title: "Entregados", value: kpisData.entregados || 0, change: "+2%", positive: true },
+          { id: 4, title: "Pendientes", value: kpisData.pendientes || 0, change: "-1%", positive: false }
+        ],
+        recentOrders: pedidos || [],
+        stockAlerts: [], // Retornamos array vacío por ahora para que no rompa el componente de alertas
+        activityFeed: [] // Retornamos array vacío por ahora
+      };
+    } catch (error) {
+      console.error("Error consolidando datos para el Dashboard:", error);
+      throw error;
+    }
+  }
+};
