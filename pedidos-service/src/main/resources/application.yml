@@ -4,11 +4,13 @@ server:
 spring:
   application:
     name: pedidos-service
+
   datasource:
-    url: ${NEON_PEDIDOS_URL:jdbc:postgresql://db-pedidos:5432/smartlogix_pedidos}
-    username: ${NEON_PEDIDOS_USER:user_logix}
-    password: ${NEON_PEDIDOS_PASSWORD:password123}
+    url: ${NEON_PEDIDOS_URL:jdbc:postgresql://localhost:5432/smartlogix_pedidos}
+    username: ${NEON_PEDIDOS_USER:postgres}
+    password: ${NEON_PEDIDOS_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,7 +21,7 @@ spring:
 
 inventario:
   service:
-    url: ${INVENTARIO_SERVICE_URL:http://inventario-service:8081}
+    url: ${INVENTARIO_SERVICE_URL:http://localhost:8081}
 
 feign:
   circuitbreaker:

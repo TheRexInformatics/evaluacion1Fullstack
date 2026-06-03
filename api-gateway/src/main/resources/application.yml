@@ -9,32 +9,32 @@ spring:
       mvc:
         routes:
           - id: inventario-productos
-            uri: http://localhost:8081
+            uri: ${INVENTARIO_SERVICE_URL:http://localhost:8081}
             predicates:
               - Path=/api/productos/**
 
           - id: inventario-stocks
-            uri: http://localhost:8081
+            uri: ${INVENTARIO_SERVICE_URL:http://localhost:8081}
             predicates:
               - Path=/api/stocks/**
 
           - id: pedidos-service
-            uri: http://localhost:8082
+            uri: ${PEDIDOS_SERVICE_URL:http://localhost:8082}
             predicates:
               - Path=/api/pedidos/**
 
           - id: envios-service
-            uri: http://localhost:8083
+            uri: ${ENVIOS_SERVICE_URL:http://localhost:8083}
             predicates:
               - Path=/api/envios/**
 
           - id: bff-service
-            uri: http://localhost:8084
+            uri: ${BFF_SERVICE_URL:http://localhost:8084}
             predicates:
               - Path=/api/bff/**
 
           - id: auth-service
-            uri: http://localhost:8085 # <--- ASEGÚRATE QUE DIGA 8085
+            uri: ${AUTH_SERVICE_URL:http://localhost:8085}
             predicates:
               - Path=/auth/**
 
@@ -47,10 +47,8 @@ spring:
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.http.server.reactive: DEBUG
+    org.springframework.cloud.gateway: INFO
 
-  # Configuración JWT
 jwt:
-  secret: SmartLogixSecretKeyUltraSegura2026ParaDesarrolloLocal
-  expiration: 3600000 # 1 hora en milisegundos
+  secret: ${JWT_SECRET:SmartLogixSecretKeyUltraSegura2026ParaDesarrolloLocal}
+  expiration: ${JWT_EXPIRATION:3600000}

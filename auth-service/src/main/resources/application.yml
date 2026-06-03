@@ -5,7 +5,6 @@ spring:
   application:
     name: auth-service
 
-# Configuración de nuestra seguridad JWT
 jwt:
-  secret: SmartLogixSecretKeyUltraSegura2026ParaDesarrolloLocal
-  expiration: 3600000 # 1 hora en milisegundos
+  secret: ${JWT_SECRET:SmartLogixSecretKeyUltraSegura2026ParaDesarrolloLocal}
+  expiration: ${JWT_EXPIRATION:3600000}

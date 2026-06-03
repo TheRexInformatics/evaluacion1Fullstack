@@ -31,6 +31,15 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PedidoDTO> obtenerPedido(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(pedidoService.findById(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PutMapping("/{id}/compensar")
     public ResponseEntity<PedidoDTO> compensarPedido(@PathVariable Long id) {
         // Servicio para cancelar el pedido

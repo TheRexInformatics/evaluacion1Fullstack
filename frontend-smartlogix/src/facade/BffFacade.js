@@ -1,57 +1,159 @@
-// src/facade/BffFacade.js
+// ============================================================================
+// 🔐 UTILIDADES DE SEGURIDAD Y TOKEN
+// ============================================================================
 
-// En el futuro, esta será la URL de tu API Gateway (puerto 8080)
-const API_URL = 'http://localhost:8080/api/v1';
+const TOKEN_KEY = 'smartlogix_token';
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function isAuthenticated() {
+  return !!getToken();
+}
+
+export function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  // Disparamos el evento global para que App.jsx renderice el Login
+  window.dispatchEvent(new Event("smartlogix:unauthorized"));
+}
+
+export function decodeTokenPayload() {
+  const token = getToken();
+  if (!token) return null;
+  
+  try {
+    // El JWT tiene 3 partes separadas por punto: header.payload.signature
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Error decodificando el token", e);
+    return null;
+  }
+}
+
+export function isTokenExpired() {
+  const payload = decodeTokenPayload();
+  if (!payload || !payload.exp) return true;
+  
+  const currentTime = Date.now() / 1000;
+  return payload.exp < currentTime;
+}
+
+
+// ============================================================================
+// 🌐 INTERCEPTOR HTTP (El núcleo de comunicación)
+// ============================================================================
+
+const API_GATEWAY_URL = 'http://localhost:8080';
+
+/**
+ * Función central para hacer peticiones al API Gateway.
+ * Se encarga de inyectar el token y manejar respuestas 401/403.
+ */
+async function fetchWithAuth(endpoint, options = {}) {
+  const token = getToken();
+  
+  // Si el token expiró antes de siquiera hacer la petición, lo sacamos
+  if (token && isTokenExpired()) {
+    logout();
+    throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...options.headers
+  };
+
+  try {
+    const response = await fetch(`${API_GATEWAY_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
+
+    // Si el API Gateway nos rechaza el token (401 o 403)
+    if (response.status === 401 || response.status === 403) {
+      logout();
+      throw new Error("Acceso denegado o token inválido");
+    }
+
+    if (!response.ok) {
+      throw new Error(`Error del servidor: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error en fetchWithAuth [${endpoint}]:`, error);
+    throw error;
+  }
+}
+
+
+// ============================================================================
+// 📦 SERVICIOS DE NEGOCIO (Los llamados reales a tus microservicios)
+// ============================================================================
+
+/**
+ * Obtiene todos los pedidos desde el microservicio de pedidos.
+ */
+export async function getPedidos() {
+  try {
+    return await fetchWithAuth('/api/pedidos');
+  } catch (error) {
+    console.error("No se pudieron cargar los pedidos", error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene los KPIs consolidados desde el BFF.
+ */
+export async function getDashboardKPIs() {
+  return await fetchWithAuth('/api/bff/kpis');
+}
+
+/**
+ * Dashboard agregado: KPIs, pedidos recientes, alertas de stock y actividad.
+ */
+export async function getDashboard() {
+  return await fetchWithAuth('/api/bff/dashboard');
+}
+
+/**
+ * Obtiene el detalle de un pedido en particular (Vital para el Patrón Saga)
+ */
+export async function getDetallePedido(id) {
+  return await fetchWithAuth(`/api/pedidos/${id}`);
+}
+
+
+// ============================================================================
+// 🚀 OBJETO FACADE (Para retrocompatibilidad con los Contenedores)
+// ============================================================================
+
+function mapKpis(kpisData) {
+  return [
+    { id: 1, title: "Total Pedidos", value: kpisData.totalPedidos ?? 0, change: "+5%", positive: true },
+    { id: 2, title: "Ingresos", value: `$${kpisData.ingresos ?? 0}`, change: "+12%", positive: true },
+    { id: 3, title: "Entregados", value: kpisData.entregados ?? 0, change: "+2%", positive: true },
+    { id: 4, title: "Pendientes", value: kpisData.pendientes ?? 0, change: "-1%", positive: false },
+  ];
+}
 
 export const bffFacade = {
-  
-  // Método para obtener los datos del Dashboard
   getDashboardData: async () => {
-    try {
-      /* =========================================================
-         CÓDIGO FUTURO (Para cuando el Backend Spring Boot esté listo):
-         const response = await fetch(`${API_URL}/dashboard`);
-         if (!response.ok) throw new Error('Error al conectar con el BFF');
-         return await response.json();
-      ========================================================= */
-
-      // CÓDIGO ACTUAL (Simulación para no bloquear el desarrollo Frontend):
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            kpis: [
-              { id: "orders", label: "Pedidos Hoy", value: "1,284", delta: "+12%", trend: "up", icon: "🛒", color: "blue" },
-              { id: "revenue", label: "Ingresos del Día", value: "$48,320", delta: "+8.4%", trend: "up", icon: "💰", color: "emerald" },
-              { id: "stock", label: "Alertas de Stock", value: "7", delta: "-2 vs ayer", trend: "down", icon: "📦", color: "amber" },
-              { id: "shipments", label: "Envíos en Tránsito", value: "342", delta: "+5%", trend: "up", icon: "🚚", color: "violet" },
-            ],
-            recentOrders: [
-              { id: "ORD-9021", client: "Distribuidora Norte", items: 14, total: "$2,450", status: "CONFIRMED", time: "Hace 3 min" },
-              { id: "ORD-9020", client: "Mercados del Sur S.A.", items: 6, total: "$890", status: "PENDING", time: "Hace 11 min" },
-              { id: "ORD-9019", client: "Insumos Médicos", items: 120, total: "$12,400", status: "CANCELLED", time: "Hace 45 min" },
-            ],
-            stockAlerts: [
-              { sku: "SKU-4412", name: "Caja Cartón 50x40", stock: 3, min: 20, warehouse: "Bodega A" },
-              { sku: "SKU-2201", name: "Pallet Madera Std", stock: 7, min: 15, warehouse: "Bodega B" },
-              { sku: "SKU-8834", name: "Film Stretch 500m", stock: 1, min: 10, warehouse: "Bodega A" },
-            ],
-            activityFeed: [
-              { id: 1, type: "order", msg: "Pedido ORD-9021 confirmado por Saga", time: "03:14" },
-              { id: 2, type: "stock", msg: "Stock crítico en SKU-8834 detectado", time: "03:02" },
-              { id: 3, type: "ship", msg: "Envío SHP-441 despachado desde Bodega A", time: "02:50" },
-              { id: 4, type: "order", msg: "Pedido ORD-9018 compensado (CANCELLED)", time: "02:31" },
-            ]
-          });
-        }, 900); // Simulamos 900ms de latencia de red
-      });
-
-    } catch (error) {
-      console.error("BffFacade Error:", error);
-      throw error;
-    }
+    const dashboard = await getDashboard();
+    return {
+      kpis: mapKpis(dashboard.kpis ?? {}),
+      recentOrders: dashboard.recentOrders ?? [],
+      stockAlerts: dashboard.stockAlerts ?? [],
+      activityFeed: dashboard.activityFeed ?? [],
+    };
   },
-
-  // Aquí agregaremos en el futuro los métodos de compensación de la Saga:
-  // forzarReintentoSaga: async (pedidoId) => { ... },
-  // cancelarPedidoSaga: async (pedidoId) => { ... }
 };

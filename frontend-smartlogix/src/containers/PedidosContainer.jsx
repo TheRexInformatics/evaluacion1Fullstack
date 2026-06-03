@@ -1,171 +1,100 @@
-import { useState, useEffect, useCallback } from "react";
-import { getPedidos, createPedido, updatePedido, cancelPedido } from "../facade/pedidosFacade";
-import PedidosView from "../components/PedidosView";
-
-const EMPTY_FORM = { client: "", items: "", total: "", fecha: "" };
+import { useState, useEffect } from 'react';
+import { getPedidos, getDetallePedido } from '../facade/BffFacade';
+import RecentOrdersTable from '../components/RecentOrdersTable';
+import ModalPedido from '../components/ModalPedido';
 
 export default function PedidosContainer() {
-  // ── Data ────────────────────────────────────────────────────────────────
-  const [pedidos, setPedidos]   = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [saving,  setSaving]    = useState(false);
-  const [error,   setError]     = useState(null);
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Estados para Filtros
+  const [filtroEstado, setFiltroEstado] = useState('TODOS');
+  const [busquedaId, setBusquedaId] = useState('');
 
-  // ── Filters ─────────────────────────────────────────────────────────────
-  const [filterStatus,     setFilterStatus]     = useState("ALL");
-  const [filterFechaDesde, setFilterFechaDesde] = useState("");
-  const [filterFechaHasta, setFilterFechaHasta] = useState("");
+  // Estados para el Modal de la Saga
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+  const [loadingDetalle, setLoadingDetalle] = useState(false);
 
-  // ── Modal ───────────────────────────────────────────────────────────────
-  const [modalMode,    setModalMode]    = useState(null);   // "create" | "edit" | null
-  const [selectedId,   setSelectedId]   = useState(null);
-  const [form,         setForm]         = useState(EMPTY_FORM);
-  const [formErrors,   setFormErrors]   = useState({});
+  // Cargar datos reales al montar el componente
+  useEffect(() => {
+    cargarPedidosRest();
+  }, []);
 
-  // ── Confirm cancel dialog ────────────────────────────────────────────────
-  const [confirmCancelId, setConfirmCancelId] = useState(null);
-
-  // ── Load / reload ────────────────────────────────────────────────────────
-  const loadPedidos = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const cargarPedidosRest = async () => {
     try {
-      const data = await getPedidos({
-        status:     filterStatus,
-        fechaDesde: filterFechaDesde,
-        fechaHasta: filterFechaHasta,
-      });
-      setPedidos(data);
-    } catch {
-      setError("No se pudieron cargar los pedidos.");
+      setLoading(true);
+      // Llama a tu microservicio real a través del Gateway
+      const data = await getPedidos();
+      setPedidos(data || []);
+    } catch (err) {
+      setError("Error al cargar los pedidos desde el servidor.");
+      console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [filterStatus, filterFechaDesde, filterFechaHasta]);
+  };
 
-  useEffect(() => { loadPedidos(); }, [loadPedidos]);
-
-  // ── Form helpers ─────────────────────────────────────────────────────────
-  function handleFormChange(field, value) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setFormErrors((prev) => ({ ...prev, [field]: undefined }));
-  }
-
-  function validateForm() {
-    const errs = {};
-    if (!form.client.trim())      errs.client = "El cliente es requerido.";
-    if (!form.fecha)              errs.fecha  = "La fecha es requerida.";
-    if (!form.items || isNaN(Number(form.items)) || Number(form.items) < 1)
-      errs.items = "Debe ser un número mayor a 0.";
-    if (!form.total || isNaN(Number(form.total)) || Number(form.total) < 0)
-      errs.total = "Debe ser un monto válido.";
-    return errs;
-  }
-
-  // ── Open modals ──────────────────────────────────────────────────────────
-  function handleOpenCreate() {
-    setForm(EMPTY_FORM);
-    setFormErrors({});
-    setSelectedId(null);
-    setModalMode("create");
-  }
-
-  function handleOpenEdit(pedido) {
-    setForm({
-      client: pedido.client,
-      items:  String(pedido.items),
-      total:  String(pedido.total),
-      fecha:  pedido.fecha,
-    });
-    setFormErrors({});
-    setSelectedId(pedido.id);
-    setModalMode("edit");
-  }
-
-  function handleCloseModal() {
-    setModalMode(null);
-    setSelectedId(null);
-    setForm(EMPTY_FORM);
-    setFormErrors({});
-  }
-
-  // ── Submit ───────────────────────────────────────────────────────────────
-  async function handleSubmit() {
-    const errs = validateForm();
-    if (Object.keys(errs).length > 0) { setFormErrors(errs); return; }
-
-    setSaving(true);
+  // Función que se ejecuta al hacer clic en un pedido de la tabla
+  const handleVerDetalle = async (id) => {
+    setIsModalOpen(true);
+    setLoadingDetalle(true);
     try {
-      const payload = {
-        client: form.client.trim(),
-        items:  Number(form.items),
-        total:  Number(form.total),
-        fecha:  form.fecha,
-      };
-
-      if (modalMode === "create") {
-        await createPedido(payload);
-      } else {
-        await updatePedido(selectedId, payload);
-      }
-
-      handleCloseModal();
-      await loadPedidos();
-    } catch {
-      setError("Error al guardar el pedido.");
+      const detalle = await getDetallePedido(id);
+      setPedidoSeleccionado(detalle);
+    } catch (err) {
+      console.error("Error al obtener detalle del pedido", err);
+      // Fallback: Si el detalle falla, pasamos los datos básicos de la tabla
+      const pedidoBasico = pedidos.find(p => p.id === id);
+      setPedidoSeleccionado(pedidoBasico);
     } finally {
-      setSaving(false);
+      setLoadingDetalle(false);
     }
-  }
+  };
 
-  // ── Cancel (Saga) ────────────────────────────────────────────────────────
-  function handleAskCancel(id) {
-    setConfirmCancelId(id);
-  }
+  // Lógica de Filtros Reales
+  const pedidosFiltrados = pedidos.filter((pedido) => {
+    const matchEstado = filtroEstado === 'TODOS' || 
+                        pedido.sagaStatus === filtroEstado || 
+                        pedido.estado === filtroEstado; // Por si tu DB usa 'estado' en lugar de 'sagaStatus'
+    const matchId = busquedaId === '' || String(pedido.id).includes(busquedaId);
+    return matchEstado && matchId;
+  });
 
-  async function handleConfirmCancel() {
-    if (!confirmCancelId) return;
-    setSaving(true);
-    try {
-      await cancelPedido(confirmCancelId);
-      await loadPedidos();
-    } catch {
-      setError("Error al cancelar el pedido.");
-    } finally {
-      setSaving(false);
-      setConfirmCancelId(null);
-    }
-  }
-
-  // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <PedidosView
-      // data
-      pedidos={pedidos}
-      loading={loading}
-      saving={saving}
-      error={error}
-      // filters
-      filterStatus={filterStatus}
-      filterFechaDesde={filterFechaDesde}
-      filterFechaHasta={filterFechaHasta}
-      onFilterStatus={setFilterStatus}
-      onFilterFechaDesde={setFilterFechaDesde}
-      onFilterFechaHasta={setFilterFechaHasta}
-      // modal
-      modalMode={modalMode}
-      form={form}
-      formErrors={formErrors}
-      onOpenCreate={handleOpenCreate}
-      onOpenEdit={handleOpenEdit}
-      onCloseModal={handleCloseModal}
-      onFormChange={handleFormChange}
-      onSubmit={handleSubmit}
-      // cancel confirm
-      confirmCancelId={confirmCancelId}
-      onAskCancel={handleAskCancel}
-      onConfirmCancel={handleConfirmCancel}
-      onDismissCancel={() => setConfirmCancelId(null)}
-    />
+    <div className="flex-1 p-8 overflow-y-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Gestión de Pedidos (Saga)</h2>
+        <button onClick={cargarPedidosRest} className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm hover:bg-blue-200 transition">
+          🔄 Refrescar Datos
+        </button>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Tu componente Presenter Visual (La tabla) */}
+      <RecentOrdersTable 
+        pedidos={pedidosFiltrados} 
+        loading={loading}
+        filtroEstado={filtroEstado}
+        setFiltroEstado={setFiltroEstado}
+        busquedaId={busquedaId}
+        setBusquedaId={setBusquedaId}
+        onVerDetalle={handleVerDetalle} // Le pasamos la función para abrir el modal
+      />
+
+      {/* Renderizado del Modal */}
+      <ModalPedido 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        pedido={pedidoSeleccionado}
+        loading={loadingDetalle}
+      />
+    </div>
   );
 }

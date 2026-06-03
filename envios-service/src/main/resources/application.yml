@@ -9,7 +9,7 @@ spring:
     # Configuración para Neon con respaldo local
     url: ${NEON_ENVIOS_URL:jdbc:postgresql://db-envios:5432/smartlogix_envios}
     username: ${NEON_ENVIOS_USER:user_logix}
-    password: ${NEON_ENVIOS_PASSWORD:password123}
+    password: ${NEON_ENVIOS_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
