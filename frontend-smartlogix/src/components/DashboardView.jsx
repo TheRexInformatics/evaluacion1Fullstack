@@ -45,7 +45,7 @@ export default function DashboardView({ loading, error, data, activeSection }) {
               {loading ? (
                 <TableSkeleton />
               ) : (
-                <RecentOrdersTable orders={data?.recentOrders ?? []} />
+                <RecentOrdersTable pedidos={data?.recentOrders ?? []} />
               )}
             </div>
 

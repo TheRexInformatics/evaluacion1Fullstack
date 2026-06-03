@@ -75,6 +75,13 @@ public class PedidoServiceImpl implements PedidoService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public PedidoDTO findById(Long id) {
+        return pedidoRepository.findById(id)
+                .map(this::mapearADTO)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado: " + id));
+    }
+
     private PedidoDTO mapearADTO(Pedido pedido) {
         PedidoDTO dto = new PedidoDTO();
         dto.setId(pedido.getId());

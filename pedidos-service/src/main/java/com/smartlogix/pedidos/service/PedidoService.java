@@ -10,6 +10,7 @@ public interface PedidoService {
     // Devuelve lista de DTOs
     List<PedidoDTO> findAll();
 
-    // Ya estaba correcto
+    PedidoDTO findById(Long id);
+
     PedidoDTO compensarPedido(Long id);
 }

@@ -104,11 +104,10 @@ async function fetchWithAuth(endpoint, options = {}) {
  */
 export async function getPedidos() {
   try {
-    // Asegúrate de que la ruta coincida con tu configuración de Spring Cloud Gateway
-    return await fetchWithAuth('/pedidos');
+    return await fetchWithAuth('/api/pedidos');
   } catch (error) {
     console.error("No se pudieron cargar los pedidos", error);
-    return []; // Retornamos array vacío para que la tabla no se rompa
+    return [];
   }
 }
 
@@ -116,26 +115,21 @@ export async function getPedidos() {
  * Obtiene los KPIs consolidados desde el BFF.
  */
 export async function getDashboardKPIs() {
-  try {
-    // Suponiendo que tu BFF expone esta ruta. Ajustar según tu controlador
-    return await fetchWithAuth('/bff/kpis');
-  } catch (error) {
-    console.warn("BFF no respondió, cargando KPIs por defecto (Fallback)", error);
-    // Fallback temporal mientras el BFF se termina de construir
-    return {
-      totalPedidos: 0,
-      ingresos: 0,
-      entregados: 0,
-      pendientes: 0
-    };
-  }
+  return await fetchWithAuth('/api/bff/kpis');
+}
+
+/**
+ * Dashboard agregado: KPIs, pedidos recientes, alertas de stock y actividad.
+ */
+export async function getDashboard() {
+  return await fetchWithAuth('/api/bff/dashboard');
 }
 
 /**
  * Obtiene el detalle de un pedido en particular (Vital para el Patrón Saga)
  */
 export async function getDetallePedido(id) {
-  return await fetchWithAuth(`/pedidos/${id}`);
+  return await fetchWithAuth(`/api/pedidos/${id}`);
 }
 
 
@@ -143,28 +137,23 @@ export async function getDetallePedido(id) {
 // 🚀 OBJETO FACADE (Para retrocompatibilidad con los Contenedores)
 // ============================================================================
 
+function mapKpis(kpisData) {
+  return [
+    { id: 1, title: "Total Pedidos", value: kpisData.totalPedidos ?? 0, change: "+5%", positive: true },
+    { id: 2, title: "Ingresos", value: `$${kpisData.ingresos ?? 0}`, change: "+12%", positive: true },
+    { id: 3, title: "Entregados", value: kpisData.entregados ?? 0, change: "+2%", positive: true },
+    { id: 4, title: "Pendientes", value: kpisData.pendientes ?? 0, change: "-1%", positive: false },
+  ];
+}
+
 export const bffFacade = {
   getDashboardData: async () => {
-    try {
-      // 1. Traemos los datos reales de tus microservicios a través del Gateway
-      const kpisData = await getDashboardKPIs();
-      const pedidos = await getPedidos();
-      
-      // 2. Armamos el objeto exactamente como lo espera DashboardView.jsx
-      return {
-        kpis: [
-          { id: 1, title: "Total Pedidos", value: kpisData.totalPedidos || 0, change: "+5%", positive: true },
-          { id: 2, title: "Ingresos", value: `$${kpisData.ingresos || 0}`, change: "+12%", positive: true },
-          { id: 3, title: "Entregados", value: kpisData.entregados || 0, change: "+2%", positive: true },
-          { id: 4, title: "Pendientes", value: kpisData.pendientes || 0, change: "-1%", positive: false }
-        ],
-        recentOrders: pedidos || [],
-        stockAlerts: [], // Retornamos array vacío por ahora para que no rompa el componente de alertas
-        activityFeed: [] // Retornamos array vacío por ahora
-      };
-    } catch (error) {
-      console.error("Error consolidando datos para el Dashboard:", error);
-      throw error;
-    }
-  }
+    const dashboard = await getDashboard();
+    return {
+      kpis: mapKpis(dashboard.kpis ?? {}),
+      recentOrders: dashboard.recentOrders ?? [],
+      stockAlerts: dashboard.stockAlerts ?? [],
+      activityFeed: dashboard.activityFeed ?? [],
+    };
+  },
 };
