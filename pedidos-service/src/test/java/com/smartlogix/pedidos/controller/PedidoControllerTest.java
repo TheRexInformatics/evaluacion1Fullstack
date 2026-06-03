@@ -82,11 +82,10 @@ class PedidoControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    // 🎯 EL TEST QUE QUITA EL AMARILLO (Línea 25): Evalúa cuando e.getMessage() es null
     @Test
     void crearPedido_RuntimeExceptionMensajeNull_RetornaBadRequest() throws Exception {
         when(pedidoService.crearPedido(any(Pedido.class)))
-                .thenThrow(new RuntimeException()); // Sin mensaje en el constructor
+                .thenThrow(new RuntimeException());
 
         mockMvc.perform(post("/api/pedidos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -123,12 +122,14 @@ class PedidoControllerTest {
                 .andExpect(status().isOk());
     }
 
+    // 🎯 RE-ACTIVADO Y CORREGIDO: Pasa por el orElseThrow, da el 100% y no genera errores rojos
     @Test
     void obtenerPorId_NoExiste_LanzaResourceNotFoundException() throws Exception {
+        // 1. Forzar al mock a retornar vacío para obligar a ejecutar el orElseThrow
         when(pedidoService.findById(99L)).thenReturn(Optional.empty());
 
-        org.junit.jupiter.api.Assertions.assertThrows(Exception.class, () -> {
-            mockMvc.perform(get("/api/pedidos/99"));
-        });
+        // 2. Verificar que MockMvc capture la excepción y responda limpiamente con un 404
+        mockMvc.perform(get("/api/pedidos/99"))
+                .andExpect(status().isNotFound());
     }
 }
