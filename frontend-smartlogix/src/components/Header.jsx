@@ -1,4 +1,5 @@
 import NotificationDropdown from './NotificationDropdown';
+import CartDropdown from './CartDropdown';
 import { useState } from 'react';
 
 export default function Header({ section, userName = "Admin", onLogout }) {
@@ -31,6 +32,7 @@ export default function Header({ section, userName = "Admin", onLogout }) {
 
         <div className="flex items-center gap-4">
           <NotificationDropdown />
+          <CartDropdown />
 
           <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
             <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-white text-xs font-bold shrink-0`}>

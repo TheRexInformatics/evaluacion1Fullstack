@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { isAuthenticated as checkAuthFacade, isTokenExpired, logout, decodeTokenPayload } from "./facade/BffFacade";
+import { CartProvider } from "./context/CartContext";
 
 import LoginContainer     from "./containers/LoginContainer";
 import DashboardContainer from "./containers/DashboardContainer";
@@ -14,7 +15,6 @@ import Header  from "./components/Header";
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('smartlogix_token'));
   const [activeSection, setActiveSection] = useState("Dashboard");
-  const [storeKey, setStoreKey] = useState(0);
 
   const tokenPayload = isAuthenticated ? decodeTokenPayload() : null;
   const userName     = tokenPayload?.name ?? tokenPayload?.sub ?? "Admin";
@@ -63,8 +63,9 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden"
-      style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <CartProvider>
+      <div className="flex h-screen bg-slate-50 overflow-hidden"
+        style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Sidebar
         activeSection={activeSection}
         onNavigate={setActiveSection}
@@ -80,10 +81,10 @@ export default function App() {
 
         {isAdmin && activeSection === "Dashboard"  && <DashboardContainer />}
         {activeSection === "Pedidos"    && <PedidosContainer clienteId={isAdmin ? null : userName} />}
-        {activeSection === "Tienda"     && <StoreContainer userName={userName} onPedidoCreado={() => setStoreKey(k => k + 1)} />}
+        {activeSection === "Tienda"     && <StoreContainer />}
         {isAdmin && activeSection === "Inventario" && <InventarioContainer />}
         {isAdmin && activeSection === "Envíos"     && <EnviosContainer />}
       </div>
-    </div>
+    </CartProvider>
   );
 }
