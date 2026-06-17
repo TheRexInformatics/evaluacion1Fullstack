@@ -14,7 +14,7 @@ describe('LoginContainer', () => {
 
   it('renders login form', () => {
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
-    expect(screen.getByPlaceholderText('ej: admin')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('tu_usuario')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument()
   })
 
@@ -28,7 +28,7 @@ describe('LoginContainer', () => {
 
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
 
-    await user.type(screen.getByPlaceholderText('ej: admin'), 'admin')
+    await user.type(screen.getByPlaceholderText('tu_usuario'), 'admin')
     await user.type(screen.getByPlaceholderText('••••••••'), 'wrong')
     await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }))
 
@@ -49,7 +49,7 @@ describe('LoginContainer', () => {
 
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
 
-    await user.type(screen.getByPlaceholderText('ej: admin'), 'admin')
+    await user.type(screen.getByPlaceholderText('tu_usuario'), 'admin')
     await user.type(screen.getByPlaceholderText('••••••••'), 'password')
     await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }))
 

@@ -16,7 +16,7 @@ describe('LoginView', () => {
 
   it('renders form fields', () => {
     render(<LoginView {...defaultProps} />)
-    expect(screen.getByPlaceholderText('ej: admin')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('tu_usuario')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument()
   })
 
@@ -45,7 +45,7 @@ describe('LoginView', () => {
   it('calls setUsername when typing in username field', async () => {
     const user = userEvent.setup()
     render(<LoginView {...defaultProps} />)
-    await user.type(screen.getByPlaceholderText('ej: admin'), 'admin')
+    await user.type(screen.getByPlaceholderText('tu_usuario'), 'admin')
     expect(defaultProps.setUsername).toHaveBeenCalled()
   })
 

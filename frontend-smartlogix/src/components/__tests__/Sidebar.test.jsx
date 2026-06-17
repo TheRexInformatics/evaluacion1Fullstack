@@ -14,17 +14,17 @@ describe('Sidebar', () => {
   it('highlights the active section', () => {
     render(<Sidebar activeSection="Pedidos" />)
     const pedidosBtn = screen.getByText('Pedidos').closest('button')
-    expect(pedidosBtn).toHaveClass('bg-blue-600')
+    expect(pedidosBtn).toHaveClass('bg-indigo-500/20')
   })
 
   it('does not highlight inactive sections', () => {
     render(<Sidebar activeSection="Dashboard" />)
     const pedidosBtn = screen.getByText('Pedidos').closest('button')
-    expect(pedidosBtn).not.toHaveClass('bg-blue-600')
+    expect(pedidosBtn).not.toHaveClass('bg-indigo-500/20')
   })
 
   it('renders SmartLogix branding', () => {
     render(<Sidebar activeSection="Dashboard" />)
-    expect(screen.getByText('Logix')).toBeInTheDocument()
+    expect(screen.getByText('SmartLogix')).toBeInTheDocument()
   })
 })
