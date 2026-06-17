@@ -85,6 +85,7 @@ export default function App() {
         {isAdmin && activeSection === "Inventario" && <InventarioContainer />}
         {isAdmin && activeSection === "Envíos"     && <EnviosContainer />}
       </div>
+      </div>
     </CartProvider>
   );
 }
