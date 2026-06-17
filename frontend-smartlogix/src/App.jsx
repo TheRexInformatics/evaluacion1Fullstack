@@ -40,6 +40,12 @@ export default function App() {
     return () => clearInterval(id);
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (isAuthenticated && !isAdmin) {
+      setActiveSection("Tienda");
+    }
+  }, [isAuthenticated, isAdmin]);
+
   if (!isAuthenticated) {
     return (
       <LoginContainer
@@ -72,7 +78,7 @@ export default function App() {
           onLogout={handleLogout}
         />
 
-        {activeSection === "Dashboard"  && <DashboardContainer />}
+        {isAdmin && activeSection === "Dashboard"  && <DashboardContainer />}
         {activeSection === "Pedidos"    && <PedidosContainer clienteId={isAdmin ? null : userName} />}
         {activeSection === "Tienda"     && <StoreContainer userName={userName} onPedidoCreado={() => setStoreKey(k => k + 1)} />}
         {isAdmin && activeSection === "Inventario" && <InventarioContainer />}

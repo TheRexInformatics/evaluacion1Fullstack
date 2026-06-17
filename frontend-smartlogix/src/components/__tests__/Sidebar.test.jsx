@@ -13,9 +13,9 @@ describe('Sidebar', () => {
 
   it('renders limited nav items for client', () => {
     render(<Sidebar activeSection="Dashboard" userRole="ROLE_CLIENTE" />)
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Tienda')).toBeInTheDocument()
     expect(screen.getByText('Mis Pedidos')).toBeInTheDocument()
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument()
     expect(screen.queryByText('Inventario')).not.toBeInTheDocument()
     expect(screen.queryByText('Envios')).not.toBeInTheDocument()
   })
