@@ -1,36 +1,38 @@
 package com.smartlogix.bff.service;
 
-import com.smartlogix.bff.client.InventarioClient;
-import com.smartlogix.bff.client.PedidosClient;
 import com.smartlogix.bff.dto.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class BffServiceImpl implements BffService {
 
-    private final PedidosClient pedidosClient;
-    private final InventarioClient inventarioClient;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${services.pedidos.url:http://localhost:8082}")
+    private String pedidosUrl;
+
+    @Value("${services.inventario.url:http://localhost:8081}")
+    private String inventarioUrl;
 
     @Value("${bff.stock-alert-threshold:10}")
     private int stockAlertThreshold;
 
     @Override
     public KpisDTO obtenerKpis() {
-        List<PedidoDTO> pedidos = pedidosClient.listarPedidos();
+        List<PedidoDTO> pedidos = listarPedidos();
         return calcularKpis(pedidos);
     }
 
     @Override
     public DashboardDTO obtenerDashboard() {
-        List<PedidoDTO> pedidos = pedidosClient.listarPedidos();
-        List<StockDTO> stocks = inventarioClient.listarStocks();
+        List<PedidoDTO> pedidos = listarPedidos();
+        List<StockDTO> stocks = listarStocks();
 
         List<PedidoDTO> recientes = pedidos.stream()
                 .sorted(Comparator.comparing(PedidoDTO::getId, Comparator.nullsLast(Comparator.reverseOrder())))
@@ -43,6 +45,26 @@ public class BffServiceImpl implements BffService {
                 .stockAlerts(construirAlertas(stocks))
                 .activityFeed(construirActividad(pedidos))
                 .build();
+    }
+
+    private List<PedidoDTO> listarPedidos() {
+        try {
+            PedidoDTO[] result = restTemplate.getForObject(pedidosUrl + "/api/pedidos", PedidoDTO[].class);
+            return result != null ? Arrays.asList(result) : Collections.emptyList();
+        } catch (Exception e) {
+            System.err.println("Error fetching pedidos: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    private List<StockDTO> listarStocks() {
+        try {
+            StockDTO[] result = restTemplate.getForObject(inventarioUrl + "/api/stocks", StockDTO[].class);
+            return result != null ? Arrays.asList(result) : Collections.emptyList();
+        } catch (Exception e) {
+            System.err.println("Error fetching stocks: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
     private KpisDTO calcularKpis(List<PedidoDTO> pedidos) {
