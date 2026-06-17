@@ -79,7 +79,7 @@ export default function App() {
           onLogout={handleLogout}
         />
 
-        {isAdmin && activeSection === "Dashboard"  && <DashboardContainer />}
+        {isAdmin && activeSection === "Dashboard"  && <DashboardContainer onNavigate={setActiveSection} />}
         {activeSection === "Pedidos"    && <PedidosContainer clienteId={isAdmin ? null : userName} />}
         {activeSection === "Tienda"     && <StoreContainer />}
         {isAdmin && activeSection === "Inventario" && <InventarioContainer />}

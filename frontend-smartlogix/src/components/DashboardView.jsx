@@ -3,7 +3,7 @@ import RecentOrdersTable from "./RecentOrdersTable";
 import StockAlertsList from "./StockAlertsList";
 import ActivityFeed from "./ActivityFeed";
 
-export default function DashboardView({ loading, error, data, activeSection, onRefresh }) {
+export default function DashboardView({ loading, error, data, activeSection, onRefresh, onNavigate }) {
   return (
     <main className="flex-1 overflow-y-auto p-6 space-y-6">
       {error && (
@@ -38,14 +38,14 @@ export default function DashboardView({ loading, error, data, activeSection, onR
         <div className="xl:col-span-2 bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50/50">
             <h3 className="text-sm font-semibold text-slate-800">Pedidos Recientes</h3>
-            <button className="text-xs text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
+            <button onClick={() => onNavigate && onNavigate("Pedidos")} className="text-xs text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
               Ver todos →
             </button>
           </div>
           {loading ? (
             <TableSkeleton />
           ) : (
-            <RecentOrdersTable pedidos={data?.recentOrders ?? []} />
+            <RecentOrdersTable pedidos={data?.recentOrders ?? []} onVerDetalle={() => onNavigate && onNavigate("Pedidos")} />
           )}
         </div>
 
