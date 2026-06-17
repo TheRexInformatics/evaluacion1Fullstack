@@ -48,7 +48,7 @@ export default function Sidebar({ activeSection, onNavigate, userRole }) {
   const items = isAdmin ? ADMIN_ITEMS : CLIENTE_ITEMS;
 
   return (
-    <aside className="w-64 bg-slate-900 flex flex-col shrink-0 h-screen">
+    <aside className="w-64 bg-slate-900 flex flex-col shrink-0 h-full">
       <div className="px-6 py-6 border-b border-slate-700/50">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-indigo-500 flex items-center justify-center">

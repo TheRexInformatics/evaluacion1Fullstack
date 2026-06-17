@@ -64,7 +64,7 @@ export default function App() {
 
   return (
     <CartProvider>
-      <div className="flex h-screen bg-slate-50 overflow-hidden"
+      <div className="flex h-full bg-slate-50 overflow-hidden"
         style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       <Sidebar
         activeSection={activeSection}
