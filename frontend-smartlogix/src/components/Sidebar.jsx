@@ -40,6 +40,7 @@ const ADMIN_ITEMS = [
 
 const CLIENTE_ITEMS = [
   { label: "Dashboard", icon: ICONS.dashboard, section: "Dashboard" },
+  { label: "Tienda", icon: ICONS.inventario, section: "Tienda" },
   { label: "Mis Pedidos", icon: ICONS.pedidos, section: "Pedidos" },
 ];
 

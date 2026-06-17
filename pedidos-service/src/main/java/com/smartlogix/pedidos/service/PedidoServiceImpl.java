@@ -41,6 +41,7 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setTotal(producto.getPrecio().multiply(BigDecimal.valueOf(pedidoDTO.getCantidad())));
         pedido.setEstado("PROCESADO");
         pedido.setSagaStatus("PENDING");
+        pedido.setClienteId(pedidoDTO.getClienteId());
 
         // 4. Guardar en DB local y reducir stock remoto
         Pedido guardado = pedidoRepository.save(pedido);
@@ -91,6 +92,7 @@ public class PedidoServiceImpl implements PedidoService {
         dto.setTotal(pedido.getTotal());
         dto.setEstado(pedido.getEstado());
         dto.setSagaStatus(pedido.getSagaStatus());
+        dto.setClienteId(pedido.getClienteId());
         return dto;
     }
 }

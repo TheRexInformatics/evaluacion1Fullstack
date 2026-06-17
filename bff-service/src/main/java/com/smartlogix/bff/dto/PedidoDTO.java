@@ -13,4 +13,5 @@ public class PedidoDTO {
     private BigDecimal total;
     private String estado;
     private String sagaStatus;
+    private String clienteId;
 }

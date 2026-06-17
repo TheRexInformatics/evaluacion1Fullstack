@@ -6,6 +6,7 @@ import DashboardContainer from "./containers/DashboardContainer";
 import PedidosContainer   from "./containers/PedidosContainer";
 import InventarioContainer from "./containers/InventarioContainer";
 import EnviosContainer     from "./containers/EnviosContainer";
+import StoreContainer      from "./containers/StoreContainer";
 
 import Sidebar from "./components/Sidebar";
 import Header  from "./components/Header";
@@ -13,6 +14,7 @@ import Header  from "./components/Header";
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('smartlogix_token'));
   const [activeSection, setActiveSection] = useState("Dashboard");
+  const [storeKey, setStoreKey] = useState(0);
 
   const tokenPayload = isAuthenticated ? decodeTokenPayload() : null;
   const userName     = tokenPayload?.name ?? tokenPayload?.sub ?? "Admin";
@@ -71,7 +73,8 @@ export default function App() {
         />
 
         {activeSection === "Dashboard"  && <DashboardContainer />}
-        {activeSection === "Pedidos"    && <PedidosContainer />}
+        {activeSection === "Pedidos"    && <PedidosContainer clienteId={isAdmin ? null : userName} />}
+        {activeSection === "Tienda"     && <StoreContainer userName={userName} onPedidoCreado={() => setStoreKey(k => k + 1)} />}
         {isAdmin && activeSection === "Inventario" && <InventarioContainer />}
         {isAdmin && activeSection === "Envíos"     && <EnviosContainer />}
       </div>

@@ -3,7 +3,7 @@ import { getPedidos, getDetallePedido } from '../facade/BffFacade';
 import RecentOrdersTable from '../components/RecentOrdersTable';
 import ModalPedido from '../components/ModalPedido';
 
-export default function PedidosContainer() {
+export default function PedidosContainer({ clienteId }) {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -59,17 +59,18 @@ export default function PedidosContainer() {
   const pedidosFiltrados = pedidos.filter((pedido) => {
     const matchEstado = filtroEstado === 'TODOS' || 
                         pedido.sagaStatus === filtroEstado || 
-                        pedido.estado === filtroEstado; // Por si tu DB usa 'estado' en lugar de 'sagaStatus'
+                        pedido.estado === filtroEstado;
     const matchId = busquedaId === '' || String(pedido.id).includes(busquedaId);
-    return matchEstado && matchId;
+    const matchCliente = !clienteId || pedido.clienteId === clienteId;
+    return matchEstado && matchId && matchCliente;
   });
 
   return (
     <div className="flex-1 p-6 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">Gestión de Pedidos</h2>
-          <p className="text-xs text-slate-500 mt-0.5">Saga Pattern activo</p>
+          <h2 className="text-lg font-bold text-slate-800">{clienteId ? 'Mis Pedidos' : 'Gestión de Pedidos'}</h2>
+          <p className="text-xs text-slate-500 mt-0.5">{clienteId ? 'Tus compras' : 'Saga Pattern activo'}</p>
         </div>
         <button onClick={cargarPedidosRest} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition-colors">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>

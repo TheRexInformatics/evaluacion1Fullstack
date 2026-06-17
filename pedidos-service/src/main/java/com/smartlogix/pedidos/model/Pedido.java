@@ -18,6 +18,8 @@ public class Pedido {
     private BigDecimal total;
     private String estado;
 
+    private String clienteId;
+
     @Column(name = "saga_status")
     private String sagaStatus;
 }
