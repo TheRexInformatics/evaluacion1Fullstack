@@ -9,11 +9,9 @@ export default function DashboardContainer() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Función asíncrona dentro del useEffect
     const loadDashboard = async () => {
       try {
         setLoading(true);
-        // ¡Magia del Patrón Facade! El contenedor no sabe de dónde vienen los datos.
         const dashboardData = await bffFacade.getDashboardData();
         setData(dashboardData);
       } catch (err) {
@@ -24,7 +22,9 @@ export default function DashboardContainer() {
     };
 
     loadDashboard();
-  }, []); // El array vacío asegura que se ejecute solo una vez al cargar
+    const interval = setInterval(loadDashboard, 15_000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <DashboardView 

@@ -5,6 +5,8 @@ import { isAuthenticated as checkAuthFacade, isTokenExpired, logout, decodeToken
 import LoginContainer     from "./containers/LoginContainer";
 import DashboardContainer from "./containers/DashboardContainer";
 import PedidosContainer   from "./containers/PedidosContainer";
+import InventarioContainer from "./containers/InventarioContainer";
+import EnviosContainer     from "./containers/EnviosContainer";
 
 // Presenters de layout
 import Sidebar from "./components/Sidebar";
@@ -113,8 +115,8 @@ export default function App() {
         {/* Rutas protegidas */}
         {activeSection === "Dashboard"  && <DashboardContainer />}
         {activeSection === "Pedidos"    && <PedidosContainer />}
-        {activeSection === "Inventario" && <PlaceholderSection section="Inventario" />}
-        {activeSection === "Envíos"     && <PlaceholderSection section="Envíos" />}
+        {activeSection === "Inventario" && <InventarioContainer />}
+        {activeSection === "Envíos"     && <EnviosContainer />}
       </div>
     </div>
   );

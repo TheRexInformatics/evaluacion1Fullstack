@@ -1,7 +1,3 @@
-// ============================================================================
-// 🔐 UTILIDADES DE SEGURIDAD Y TOKEN
-// ============================================================================
-
 const TOKEN_KEY = 'smartlogix_token';
 
 export function getToken() {
@@ -14,7 +10,6 @@ export function isAuthenticated() {
 
 export function logout() {
   localStorage.removeItem(TOKEN_KEY);
-  // Disparamos el evento global para que App.jsx renderice el Login
   window.dispatchEvent(new Event("smartlogix:unauthorized"));
 }
 
@@ -23,13 +18,11 @@ export function decodeTokenPayload() {
   if (!token) return null;
   
   try {
-    // El JWT tiene 3 partes separadas por punto: header.payload.signature
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-    
     return JSON.parse(jsonPayload);
   } catch (e) {
     console.error("Error decodificando el token", e);
@@ -40,29 +33,17 @@ export function decodeTokenPayload() {
 export function isTokenExpired() {
   const payload = decodeTokenPayload();
   if (!payload || !payload.exp) return true;
-  
-  const currentTime = Date.now() / 1000;
-  return payload.exp < currentTime;
+  return (Date.now() / 1000) > payload.exp;
 }
-
-
-// ============================================================================
-// 🌐 INTERCEPTOR HTTP (El núcleo de comunicación)
-// ============================================================================
 
 const API_GATEWAY_URL = 'http://localhost:8080';
 
-/**
- * Función central para hacer peticiones al API Gateway.
- * Se encarga de inyectar el token y manejar respuestas 401/403.
- */
 async function fetchWithAuth(endpoint, options = {}) {
   const token = getToken();
   
-  // Si el token expiró antes de siquiera hacer la petición, lo sacamos
   if (token && isTokenExpired()) {
     logout();
-    throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+    throw new Error("Sesión expirada. Inicia sesión nuevamente.");
   }
 
   const headers = {
@@ -72,19 +53,16 @@ async function fetchWithAuth(endpoint, options = {}) {
   };
 
   try {
-    const response = await fetch(`${API_GATEWAY_URL}${endpoint}`, {
-      ...options,
-      headers
-    });
+    const response = await fetch(`${API_GATEWAY_URL}${endpoint}`, { ...options, headers });
 
-    // Si el API Gateway nos rechaza el token (401 o 403)
     if (response.status === 401 || response.status === 403) {
       logout();
       throw new Error("Acceso denegado o token inválido");
     }
 
     if (!response.ok) {
-      throw new Error(`Error del servidor: ${response.status}`);
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || `Error del servidor: ${response.status}`);
     }
 
     return await response.json();
@@ -94,55 +72,80 @@ async function fetchWithAuth(endpoint, options = {}) {
   }
 }
 
-
-// ============================================================================
-// 📦 SERVICIOS DE NEGOCIO (Los llamados reales a tus microservicios)
-// ============================================================================
-
-/**
- * Obtiene todos los pedidos desde el microservicio de pedidos.
- */
+// Pedidos
 export async function getPedidos() {
-  try {
-    return await fetchWithAuth('/api/pedidos');
-  } catch (error) {
-    console.error("No se pudieron cargar los pedidos", error);
-    return [];
-  }
+  try { return await fetchWithAuth('/api/pedidos'); } catch { return []; }
 }
 
-/**
- * Obtiene los KPIs consolidados desde el BFF.
- */
-export async function getDashboardKPIs() {
-  return await fetchWithAuth('/api/bff/kpis');
-}
-
-/**
- * Dashboard agregado: KPIs, pedidos recientes, alertas de stock y actividad.
- */
-export async function getDashboard() {
-  return await fetchWithAuth('/api/bff/dashboard');
-}
-
-/**
- * Obtiene el detalle de un pedido en particular (Vital para el Patrón Saga)
- */
 export async function getDetallePedido(id) {
   return await fetchWithAuth(`/api/pedidos/${id}`);
 }
 
+// Dashboard / BFF
+export async function getDashboardKPIs() {
+  return await fetchWithAuth('/api/bff/kpis');
+}
 
-// ============================================================================
-// 🚀 OBJETO FACADE (Para retrocompatibilidad con los Contenedores)
-// ============================================================================
+export async function getDashboard() {
+  return await fetchWithAuth('/api/bff/dashboard');
+}
+
+// Inventario - Productos
+export async function getProductos() {
+  try { return await fetchWithAuth('/api/productos'); } catch { return []; }
+}
+
+export async function crearProducto(data) {
+  return await fetchWithAuth('/api/productos', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+// Inventario - Stocks
+export async function getStocks() {
+  try { return await fetchWithAuth('/api/stocks'); } catch { return []; }
+}
+
+export async function entradaStock(productoId, bodegaId, cantidad) {
+  return await fetchWithAuth(`/api/stocks/entrada?productoId=${productoId}&bodegaId=${bodegaId}&cantidad=${cantidad}`, {
+    method: 'POST',
+  });
+}
+
+export async function salidaStock(productoId, bodegaId, cantidad) {
+  return await fetchWithAuth(`/api/stocks/salida?productoId=${productoId}&bodegaId=${bodegaId}&cantidad=${cantidad}`, {
+    method: 'POST',
+  });
+}
+
+// Envíos
+export async function getEnvioByPedidoId(pedidoId) {
+  try { return await fetchWithAuth(`/api/envios/pedido/${pedidoId}`); } catch { return null; }
+}
+
+export async function crearEnvio(pedidoId, direccion) {
+  return await fetchWithAuth(`/api/envios/pedido/${pedidoId}?direccion=${encodeURIComponent(direccion)}`, {
+    method: 'POST',
+  });
+}
+
+export async function actualizarEstadoEnvio(id, estado, transportista) {
+  const params = new URLSearchParams({ estado });
+  if (transportista) params.append('transportista', transportista);
+  return await fetchWithAuth(`/api/envios/${id}/estado?${params.toString()}`, {
+    method: 'PUT',
+  });
+}
+
+// ── BFF Facade ────────────────────────────────────────────
 
 function mapKpis(kpisData) {
   return [
-    { id: 1, title: "Total Pedidos", value: kpisData.totalPedidos ?? 0, change: "+5%", positive: true },
-    { id: 2, title: "Ingresos", value: `$${kpisData.ingresos ?? 0}`, change: "+12%", positive: true },
-    { id: 3, title: "Entregados", value: kpisData.entregados ?? 0, change: "+2%", positive: true },
-    { id: 4, title: "Pendientes", value: kpisData.pendientes ?? 0, change: "-1%", positive: false },
+    { id: 1, label: "Total Pedidos", value: kpisData.totalPedidos ?? 0, delta: null, trend: null, color: "blue" },
+    { id: 2, label: "Ingresos", value: `$${kpisData.ingresos ?? 0}`, delta: null, trend: null, color: "emerald" },
+    { id: 3, label: "Entregados", value: kpisData.entregados ?? 0, delta: null, trend: null, color: "violet" },
+    { id: 4, label: "Pendientes", value: kpisData.pendientes ?? 0, delta: null, trend: null, color: "amber" },
   ];
 }
 

@@ -20,6 +20,8 @@ export default function PedidosContainer() {
   // Cargar datos reales al montar el componente
   useEffect(() => {
     cargarPedidosRest();
+    const interval = setInterval(cargarPedidosRest, 15_000);
+    return () => clearInterval(interval);
   }, []);
 
   const cargarPedidosRest = async () => {
@@ -63,16 +65,20 @@ export default function PedidosContainer() {
   });
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto">
+    <div className="flex-1 p-6 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Gestión de Pedidos (Saga)</h2>
-        <button onClick={cargarPedidosRest} className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm hover:bg-blue-200 transition">
-          🔄 Refrescar Datos
+        <div>
+          <h2 className="text-lg font-bold text-slate-800">Gestión de Pedidos</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Saga Pattern activo</p>
+        </div>
+        <button onClick={cargarPedidosRest} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition-colors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+          Refrescar
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-lg">
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
           {error}
         </div>
       )}
