@@ -10,6 +10,7 @@ export default function InventarioContainer() {
   const [stockModal, setStockModal] = useState(null);
   const [newProducto, setNewProducto] = useState({ nombre: '', descripcion: '', precio: '', sku: '' });
   const [cantidad, setCantidad] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -29,15 +30,18 @@ export default function InventarioContainer() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    setActionLoading(true);
     try {
       await crearProducto({ ...newProducto, precio: parseFloat(newProducto.precio) });
       setShowCreate(false);
       setNewProducto({ nombre: '', descripcion: '', precio: '', sku: '' });
       await loadData();
     } catch (err) { setError(err.message); }
+    finally { setActionLoading(false); }
   };
 
   const handleStockAction = async (tipo) => {
+    setActionLoading(true);
     try {
       if (tipo === 'entrada') {
         await entradaStock(stockModal.productoId, stockModal.bodegaId || 1, parseInt(cantidad));
@@ -48,6 +52,7 @@ export default function InventarioContainer() {
       setCantidad('');
       await loadData();
     } catch (err) { setError(err.message); }
+    finally { setActionLoading(false); }
   };
 
   const stockPorProducto = {};
@@ -107,7 +112,10 @@ export default function InventarioContainer() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors">Crear</button>
+              <button type="submit" disabled={actionLoading}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-semibold rounded-lg transition-colors">
+                {actionLoading ? 'Creando...' : 'Crear'}
+              </button>
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border border-slate-200 text-slate-600 text-sm rounded-lg hover:bg-slate-50">Cancelar</button>
             </div>
           </form>
@@ -169,10 +177,10 @@ export default function InventarioContainer() {
             <input type="number" min="1" value={cantidad} onChange={e => setCantidad(e.target.value)}
               className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 outline-none mb-4" placeholder="1" autoFocus />
             <div className="flex gap-3 justify-end">
-              <button onClick={() => handleStockAction('entrada')} disabled={!cantidad}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-colors">Entrada</button>
-              <button onClick={() => handleStockAction('salida')} disabled={!cantidad}
-                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-colors">Salida</button>
+              <button onClick={() => handleStockAction('entrada')} disabled={!cantidad || actionLoading}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-colors">{actionLoading ? 'Procesando...' : 'Entrada'}</button>
+              <button onClick={() => handleStockAction('salida')} disabled={!cantidad || actionLoading}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white text-sm font-semibold rounded-lg transition-colors">{actionLoading ? 'Procesando...' : 'Salida'}</button>
             </div>
           </div>
         </div>

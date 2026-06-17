@@ -10,6 +10,7 @@ describe('LoginView', () => {
     password: '',
     setPassword: vi.fn(),
     error: null,
+    success: null,
     loading: false,
     onSubmit: vi.fn(),
   }

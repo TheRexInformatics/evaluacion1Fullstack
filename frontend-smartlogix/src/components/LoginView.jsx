@@ -1,7 +1,7 @@
 export default function LoginView({ 
   username, setUsername, 
   password, setPassword, 
-  error, loading, onSubmit,
+  error, success, loading, onSubmit,
   isRegister, onToggle
 }) {
   return (
@@ -23,6 +23,13 @@ export default function LoginView({
               {isRegister ? 'Crea tu cuenta para acceder' : 'Ingresa tus credenciales'}
             </p>
           </div>
+
+          {success && (
+            <div className="mb-5 p-3.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl text-sm text-center flex items-center gap-2 justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 shrink-0"><polyline points="20 6 9 17 4 12" /></svg>
+              {success}
+            </div>
+          )}
 
           {error && (
             <div className="mb-5 p-3.5 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm text-center">

@@ -19,6 +19,7 @@ export default function EnviosContainer() {
   const [pedidoIdInput, setPedidoIdInput] = useState('');
   const [direccion, setDireccion] = useState('');
   const [transportistaInput, setTransportistaInput] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -42,6 +43,7 @@ export default function EnviosContainer() {
 
   const handleCrearEnvio = async (e) => {
     e.preventDefault();
+    setActionLoading(true);
     try {
       await crearEnvio(parseInt(pedidoIdInput), direccion);
       setShowCreate(false);
@@ -49,15 +51,18 @@ export default function EnviosContainer() {
       setDireccion('');
       await loadData();
     } catch (err) { setError(err.message); }
+    finally { setActionLoading(false); }
   };
 
   const handleAvanzarEstado = async (envio) => {
     const idx = ESTADOS_FLUJO.indexOf(envio.estado);
     if (idx < ESTADOS_FLUJO.length - 1) {
+      setActionLoading(true);
       try {
         await actualizarEstadoEnvio(envio.id, ESTADOS_FLUJO[idx + 1], transportistaInput || undefined);
         await loadData();
       } catch (err) { setError(err.message); }
+      finally { setActionLoading(false); }
     }
   };
 
@@ -101,7 +106,10 @@ export default function EnviosContainer() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors">Crear Envío</button>
+              <button type="submit" disabled={actionLoading}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white text-sm font-semibold rounded-lg transition-colors">
+                {actionLoading ? 'Creando...' : 'Crear Envío'}
+              </button>
               <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border border-slate-200 text-slate-600 text-sm rounded-lg hover:bg-slate-50">Cancelar</button>
             </div>
           </form>
@@ -156,9 +164,9 @@ export default function EnviosContainer() {
                     <td className="px-5 py-3.5 text-slate-600">{envio?.transportista || '—'}</td>
                     <td className="px-5 py-3.5">
                       {envio && puedeAvanzar ? (
-                        <button onClick={() => handleAvanzarEstado(envio)}
-                          className="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 font-medium transition-colors">
-                          → {ESTADOS_FLUJO[idx + 1]}
+                        <button onClick={() => handleAvanzarEstado(envio)} disabled={actionLoading}
+                          className="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 disabled:bg-slate-100 disabled:text-slate-400 font-medium transition-colors">
+                          {actionLoading ? '...' : `→ ${ESTADOS_FLUJO[idx + 1]}`}
                         </button>
                       ) : envio?.estado === 'ENTREGADO' ? (
                         <span className="text-xs text-emerald-600 font-medium">✓ Completado</span>

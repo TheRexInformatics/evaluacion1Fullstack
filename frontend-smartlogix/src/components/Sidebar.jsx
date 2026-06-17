@@ -29,35 +29,24 @@ const ICONS = {
       <circle cx="18.5" cy="18.5" r="2.5" />
     </svg>
   ),
-  logout: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <polyline points="16 17 21 12 16 7" />
-      <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
-  ),
-  bell: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-  ),
-  search: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  ),
 };
 
-const NAV_ITEMS = [
+const ADMIN_ITEMS = [
   { label: "Dashboard", icon: ICONS.dashboard, section: "Dashboard" },
   { label: "Inventario", icon: ICONS.inventario, section: "Inventario" },
   { label: "Pedidos", icon: ICONS.pedidos, section: "Pedidos" },
   { label: "Envíos", icon: ICONS.envios, section: "Envíos" },
 ];
 
-export default function Sidebar({ activeSection, onNavigate }) {
+const CLIENTE_ITEMS = [
+  { label: "Dashboard", icon: ICONS.dashboard, section: "Dashboard" },
+  { label: "Mis Pedidos", icon: ICONS.pedidos, section: "Pedidos" },
+];
+
+export default function Sidebar({ activeSection, onNavigate, userRole }) {
+  const isAdmin = userRole === 'ROLE_ADMIN';
+  const items = isAdmin ? ADMIN_ITEMS : CLIENTE_ITEMS;
+
   return (
     <aside className="w-64 bg-slate-900 flex flex-col shrink-0 h-screen">
       <div className="px-6 py-6 border-b border-slate-700/50">
@@ -69,13 +58,13 @@ export default function Sidebar({ activeSection, onNavigate }) {
           </div>
           <div>
             <span className="text-white font-bold text-lg tracking-tight leading-none block">SmartLogix</span>
-            <span className="text-slate-500 text-xs">Panel de Control</span>
+            <span className="text-slate-500 text-xs">{isAdmin ? 'Panel de Control' : 'Panel Cliente'}</span>
           </div>
         </div>
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {NAV_ITEMS.map(({ label, icon, section }) => {
+        {items.map(({ label, icon, section }) => {
           const isActive = activeSection === section;
           return (
             <button
@@ -96,12 +85,12 @@ export default function Sidebar({ activeSection, onNavigate }) {
 
       <div className="px-4 py-4 border-t border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-            A
+          <div className={`w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold shrink-0 ${isAdmin ? 'from-indigo-400 to-blue-500' : 'from-emerald-400 to-teal-500'}`}>
+            {isAdmin ? 'A' : 'C'}
           </div>
           <div className="overflow-hidden">
-            <p className="text-slate-300 text-xs font-medium truncate">Admin SmartLogix</p>
-            <p className="text-slate-600 text-xs truncate">admin@smartlogix.cl</p>
+            <p className="text-slate-300 text-xs font-medium truncate">{isAdmin ? 'Admin SmartLogix' : 'Cliente SmartLogix'}</p>
+            <p className="text-slate-600 text-xs truncate">{isAdmin ? 'admin@smartlogix.cl' : 'cliente@smartlogix.cl'}</p>
           </div>
         </div>
       </div>

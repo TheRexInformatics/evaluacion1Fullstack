@@ -5,6 +5,7 @@ export default function LoginContainer({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
 
@@ -12,6 +13,7 @@ export default function LoginContainer({ onLoginSuccess }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
 
     const endpoint = isRegister ? '/auth/register' : '/auth/login';
     const url = 'http://localhost:8080' + endpoint;
@@ -35,6 +37,7 @@ export default function LoginContainer({ onLoginSuccess }) {
       const data = await response.json();
 
       if (isRegister) {
+        setSuccess('Cuenta creada exitosamente. Ahora puedes iniciar sesión.');
         setError(null);
         setIsRegister(false);
         setUsername('');
@@ -54,6 +57,7 @@ export default function LoginContainer({ onLoginSuccess }) {
   const handleToggle = () => {
     setIsRegister(!isRegister);
     setError(null);
+    setSuccess(null);
     setUsername('');
     setPassword('');
   };
@@ -65,6 +69,7 @@ export default function LoginContainer({ onLoginSuccess }) {
       password={password}
       setPassword={setPassword}
       error={error}
+      success={success}
       loading={loading}
       onSubmit={handleSubmit}
       isRegister={isRegister}
