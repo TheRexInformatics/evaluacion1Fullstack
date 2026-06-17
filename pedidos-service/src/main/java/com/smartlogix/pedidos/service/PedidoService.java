@@ -13,4 +13,6 @@ public interface PedidoService {
     PedidoDTO findById(Long id);
 
     PedidoDTO compensarPedido(Long id);
+
+    PedidoDTO completarPedido(Long id);
 }

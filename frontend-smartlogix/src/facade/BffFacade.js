@@ -81,6 +81,14 @@ export async function getDetallePedido(id) {
   return await fetchWithAuth(`/api/pedidos/${id}`);
 }
 
+export async function compensarPedido(id) {
+  return await fetchWithAuth(`/api/pedidos/${id}/compensar`, { method: 'PUT' });
+}
+
+export async function completarPedido(id) {
+  return await fetchWithAuth(`/api/pedidos/${id}/completar`, { method: 'PUT' });
+}
+
 // Dashboard / BFF
 export async function getDashboardKPIs() {
   return await fetchWithAuth('/api/bff/kpis');

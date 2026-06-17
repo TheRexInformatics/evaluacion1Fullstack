@@ -70,6 +70,18 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    @Transactional
+    public PedidoDTO completarPedido(Long id) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado: " + id));
+
+        pedido.setEstado("COMPLETADO");
+        pedido.setSagaStatus("COMPLETED");
+        Pedido actualizado = pedidoRepository.save(pedido);
+        return mapearADTO(actualizado);
+    }
+
+    @Override
     public List<PedidoDTO> findAll() {
         return pedidoRepository.findAll().stream()
                 .map(this::mapearADTO)

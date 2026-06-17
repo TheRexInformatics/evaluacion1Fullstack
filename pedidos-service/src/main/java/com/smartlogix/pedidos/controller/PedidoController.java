@@ -46,4 +46,10 @@ public class PedidoController {
         PedidoDTO pedidoCompensado = pedidoService.compensarPedido(id);
         return ResponseEntity.ok(pedidoCompensado);
     }
+
+    @PutMapping("/{id}/completar")
+    public ResponseEntity<PedidoDTO> completarPedido(@PathVariable Long id) {
+        PedidoDTO pedido = pedidoService.completarPedido(id);
+        return ResponseEntity.ok(pedido);
+    }
 }

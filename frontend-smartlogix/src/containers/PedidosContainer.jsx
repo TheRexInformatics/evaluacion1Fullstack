@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPedidos, getDetallePedido } from '../facade/BffFacade';
+import { getPedidos, getDetallePedido, compensarPedido, completarPedido } from '../facade/BffFacade';
 import RecentOrdersTable from '../components/RecentOrdersTable';
 import ModalPedido from '../components/ModalPedido';
 
@@ -65,6 +65,24 @@ export default function PedidosContainer({ clienteId }) {
     return matchEstado && matchId && matchCliente;
   });
 
+  const handleCancelar = async (id) => {
+    try {
+      await compensarPedido(id);
+      await cargarPedidosRest();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCompletar = async (id) => {
+    try {
+      await completarPedido(id);
+      await cargarPedidosRest();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="flex-1 p-6 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
@@ -92,7 +110,10 @@ export default function PedidosContainer({ clienteId }) {
         setFiltroEstado={setFiltroEstado}
         busquedaId={busquedaId}
         setBusquedaId={setBusquedaId}
-        onVerDetalle={handleVerDetalle} // Le pasamos la función para abrir el modal
+        onVerDetalle={handleVerDetalle}
+        onCancelar={handleCancelar}
+        onCompletar={handleCompletar}
+        clienteId={clienteId}
       />
 
       {/* Renderizado del Modal */}
