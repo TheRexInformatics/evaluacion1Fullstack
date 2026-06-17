@@ -23,17 +23,17 @@ describe('LoginContainer', () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 401,
-      json: async () => ({ message: 'Unauthorized' }),
+      json: async () => ({ error: 'Unauthorized' }),
     })
 
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
 
     await user.type(screen.getByPlaceholderText('ej: admin'), 'admin')
     await user.type(screen.getByPlaceholderText('••••••••'), 'wrong')
-    await user.click(screen.getByRole('button'))
+    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }))
 
     await waitFor(() => {
-      expect(screen.getByText(/Credenciales inválidas/)).toBeInTheDocument()
+      expect(screen.getByText(/Unauthorized/)).toBeInTheDocument()
     })
 
     expect(onLoginSuccess).not.toHaveBeenCalled()
@@ -51,7 +51,7 @@ describe('LoginContainer', () => {
 
     await user.type(screen.getByPlaceholderText('ej: admin'), 'admin')
     await user.type(screen.getByPlaceholderText('••••••••'), 'password')
-    await user.click(screen.getByRole('button'))
+    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }))
 
     await waitFor(() => {
       expect(localStorage.getItem('smartlogix_token')).toBe('jwt-token-123')

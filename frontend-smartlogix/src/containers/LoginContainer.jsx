@@ -6,32 +6,44 @@ export default function LoginContainer({ onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    const endpoint = isRegister ? '/auth/register' : '/auth/login';
+    const url = 'http://localhost:8080' + endpoint;
+
     try {
-      // Llamada real al API Gateway
-      const response = await fetch('http://localhost:8080/auth/login', {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({
+          username,
+          password,
+          ...(isRegister ? { role: 'ROLE_CLIENTE' } : {})
+        })
       });
 
       if (!response.ok) {
-        throw new Error('Credenciales inválidas o error de conexión');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Error del servidor');
       }
 
       const data = await response.json();
-      
-      // Guardamos el token JWT de forma segura
+
+      if (isRegister) {
+        setError(null);
+        setIsRegister(false);
+        setUsername('');
+        setPassword('');
+        return;
+      }
+
       localStorage.setItem('smartlogix_token', data.token);
-      
-      // Le avisamos a App.jsx que el login fue exitoso
       onLoginSuccess();
-      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -39,8 +51,15 @@ export default function LoginContainer({ onLoginSuccess }) {
     }
   };
 
+  const handleToggle = () => {
+    setIsRegister(!isRegister);
+    setError(null);
+    setUsername('');
+    setPassword('');
+  };
+
   return (
-    <LoginView 
+    <LoginView
       username={username}
       setUsername={setUsername}
       password={password}
@@ -48,6 +67,8 @@ export default function LoginContainer({ onLoginSuccess }) {
       error={error}
       loading={loading}
       onSubmit={handleSubmit}
+      isRegister={isRegister}
+      onToggle={handleToggle}
     />
   );
 }

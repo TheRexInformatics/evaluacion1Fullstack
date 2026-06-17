@@ -27,8 +27,8 @@ describe('LoginView', () => {
 
   it('shows loading text and disables button when loading', () => {
     render(<LoginView {...defaultProps} loading={true} />)
-    const btn = screen.getByRole('button')
-    expect(btn).toHaveTextContent('Verificando...')
+    const btn = screen.getByRole('button', { name: 'Procesando...' })
+    expect(btn).toHaveTextContent('Procesando...')
     expect(btn).toBeDisabled()
   })
 
@@ -51,7 +51,7 @@ describe('LoginView', () => {
 
   it('calls onSubmit when form is submitted', async () => {
     render(<LoginView {...defaultProps} />)
-    fireEvent.submit(screen.getByRole('button').closest('form'))
+    fireEvent.submit(document.querySelector('form'))
     expect(defaultProps.onSubmit).toHaveBeenCalled()
   })
 })

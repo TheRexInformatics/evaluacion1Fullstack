@@ -1,7 +1,8 @@
 export default function LoginView({ 
   username, setUsername, 
   password, setPassword, 
-  error, loading, onSubmit 
+  error, loading, onSubmit,
+  isRegister, onToggle
 }) {
   return (
     <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -9,7 +10,9 @@ export default function LoginView({
         <div className="text-center mb-8">
           <span className="text-3xl">📦</span>
           <h2 className="text-2xl font-bold text-gray-900 mt-4">SmartLogix</h2>
-          <p className="text-gray-500 text-sm">Ingresa tus credenciales para continuar</p>
+          <p className="text-gray-500 text-sm">
+            {isRegister ? 'Crea tu cuenta para empezar' : 'Ingresa tus credenciales para continuar'}
+          </p>
         </div>
 
         {error && (
@@ -48,9 +51,19 @@ export default function LoginView({
             disabled={loading}
             className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
           >
-            {loading ? 'Verificando...' : 'Iniciar Sesión'}
+            {loading ? 'Procesando...' : isRegister ? 'Crear Cuenta' : 'Iniciar Sesión'}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <button 
+            type="button"
+            onClick={onToggle}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            {isRegister ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'}
+          </button>
+        </div>
       </div>
     </div>
   );

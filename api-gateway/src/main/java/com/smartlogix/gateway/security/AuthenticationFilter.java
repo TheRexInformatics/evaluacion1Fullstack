@@ -22,6 +22,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
 
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (path.contains("/auth/login")) {
             filterChain.doFilter(request, response);
             return;
