@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 
-export default function CartDropdown() {
+export default function CartDropdown({ userName }) {
   const { carrito, updateCantidad, clearCart, totalCarrito, itemsCount } = useCart();
   const [open, setOpen] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
@@ -23,6 +23,7 @@ export default function CartDropdown() {
             productoId: item.productoId,
             codigoProducto: item.codigoProducto,
             cantidad: item.cantidad,
+            clienteId: userName,
           }),
         });
         if (!response.ok) {
