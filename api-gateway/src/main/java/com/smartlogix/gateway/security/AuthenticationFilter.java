@@ -22,29 +22,30 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
 
-        // 1. Dejar pasar las peticiones públicas (ej. si el gateway ruteara al login)
         if (path.contains("/auth/login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Extraer el header Authorization
+        if (path.contains("/auth/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Acceso denegado a SmartLogix: Falta el Token JWT");
+            response.getWriter().write("Acceso denegado: Falta el Token JWT");
             return;
         }
 
-        // 3. Limpiar y validar el token
         String token = authHeader.substring(7);
         if (!jwtUtil.validateToken(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Acceso denegado a SmartLogix: Token invalido o expirado");
+            response.getWriter().write("Acceso denegado: Token invalido o expirado");
             return;
         }
 
-        // 4. Token válido: ¡Abre la puerta!
         filterChain.doFilter(request, response);
     }
 }

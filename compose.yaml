@@ -31,6 +31,9 @@ services:
     environment:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-3600000}
+      NEON_AUTH_URL: ${NEON_AUTH_URL}
+      NEON_AUTH_USER: ${NEON_AUTH_USER}
+      NEON_AUTH_PASSWORD: ${NEON_AUTH_PASSWORD}
     networks:
       - smartlogix-network
 

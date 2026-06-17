@@ -4,50 +4,10 @@ server:
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
-      mvc:
-        routes:
-          - id: inventario-productos
-            uri: ${INVENTARIO_SERVICE_URL:http://localhost:8081}
-            predicates:
-              - Path=/api/productos/**
-
-          - id: inventario-stocks
-            uri: ${INVENTARIO_SERVICE_URL:http://localhost:8081}
-            predicates:
-              - Path=/api/stocks/**
-
-          - id: pedidos-service
-            uri: ${PEDIDOS_SERVICE_URL:http://localhost:8082}
-            predicates:
-              - Path=/api/pedidos/**
-
-          - id: envios-service
-            uri: ${ENVIOS_SERVICE_URL:http://localhost:8083}
-            predicates:
-              - Path=/api/envios/**
-
-          - id: bff-service
-            uri: ${BFF_SERVICE_URL:http://localhost:8084}
-            predicates:
-              - Path=/api/bff/**
-
-          - id: auth-service
-            uri: ${AUTH_SERVICE_URL:http://localhost:8085}
-            predicates:
-              - Path=/auth/**
-
-      globalcors:
-        cors-configurations:
-          "[/**]":
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
 
 logging:
   level:
-    org.springframework.cloud.gateway: INFO
+    com.smartlogix.gateway: INFO
 
 jwt:
   secret: ${JWT_SECRET:SmartLogixSecretKeyUltraSegura2026ParaDesarrolloLocal}
