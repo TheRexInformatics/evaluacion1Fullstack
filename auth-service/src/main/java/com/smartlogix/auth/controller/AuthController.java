@@ -51,4 +51,38 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("message", "Usuario creado exitosamente"));
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createUser(@RequestHeader("Authorization") String authHeader,
+                                         @RequestBody Map<String, String> request) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("error", "Token requerido"));
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtProvider.validateToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Token invalido o expirado"));
+        }
+
+        String role = jwtProvider.getRoleFromToken(token);
+        if (!"ROLE_ADMIN".equals(role)) {
+            return ResponseEntity.status(403).body(Map.of("error", "Solo administradores pueden crear usuarios"));
+        }
+
+        String username = request.get("username");
+        String password = request.get("password");
+        String newRole = request.getOrDefault("role", "ROLE_CLIENTE");
+
+        if (userRepository.findByUsername(username).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Usuario ya existe"));
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setRole(newRole);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Usuario creado exitosamente"));
+    }
 }

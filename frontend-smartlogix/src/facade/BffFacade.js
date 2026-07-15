@@ -72,7 +72,42 @@ async function fetchWithAuth(endpoint, options = {}) {
   }
 }
 
+// Auth (endpoints públicos del Gateway)
+export async function login(username, password) {
+  const response = await fetch(`${API_GATEWAY_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Error del servidor');
+  }
+  return await response.json();
+}
+
+export async function register(username, password) {
+  const response = await fetch(`${API_GATEWAY_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, role: 'ROLE_CLIENTE' }),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Error del servidor');
+  }
+  return await response.json();
+}
+
 // Pedidos
+export async function crearPedido(pedidoData) {
+  return await fetchWithAuth('/api/pedidos', {
+    method: 'POST',
+    body: JSON.stringify(pedidoData),
+  });
+}
+
+// Pedidos (lectura)
 export async function getPedidos() {
   try { return await fetchWithAuth('/api/pedidos'); } catch { return []; }
 }
