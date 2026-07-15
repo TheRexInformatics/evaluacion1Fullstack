@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import LoginView from '../components/LoginView';
+import { login, register } from '../facade/BffFacade';
 
 export default function LoginContainer({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -15,28 +16,9 @@ export default function LoginContainer({ onLoginSuccess }) {
     setError(null);
     setSuccess(null);
 
-    const endpoint = isRegister ? '/auth/register' : '/auth/login';
-    const url = 'http://localhost:8080' + endpoint;
-
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          password,
-          ...(isRegister ? { role: 'ROLE_CLIENTE' } : {})
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Error del servidor');
-      }
-
-      const data = await response.json();
-
       if (isRegister) {
+        await register(username, password);
         setSuccess('Cuenta creada exitosamente. Ahora puedes iniciar sesión.');
         setError(null);
         setIsRegister(false);
@@ -45,6 +27,7 @@ export default function LoginContainer({ onLoginSuccess }) {
         return;
       }
 
+      const data = await login(username, password);
       localStorage.setItem('smartlogix_token', data.token);
       onLoginSuccess();
     } catch (err) {

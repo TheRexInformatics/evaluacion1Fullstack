@@ -64,8 +64,7 @@ export default function App() {
 
   return (
     <CartProvider>
-      <div className="flex h-full bg-slate-50 overflow-hidden"
-        style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div className="flex h-dvh overflow-hidden" style={{ background: 'linear-gradient(135deg, #1c073b, #2f0a58)' }}>
       <Sidebar
         activeSection={activeSection}
         onNavigate={setActiveSection}

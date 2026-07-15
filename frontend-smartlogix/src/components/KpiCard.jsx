@@ -1,8 +1,8 @@
 const COLOR_MAP = {
-  blue:    { bg: "bg-blue-50",   text: "text-blue-600",  bar: "bg-blue-500",   border: "border-l-blue-500",  iconBg: "bg-blue-500" },
-  emerald: { bg: "bg-emerald-50", text: "text-emerald-600", bar: "bg-emerald-500", border: "border-l-emerald-500", iconBg: "bg-emerald-500" },
-  amber:   { bg: "bg-amber-50",  text: "text-amber-600",  bar: "bg-amber-500",  border: "border-l-amber-500",  iconBg: "bg-amber-500" },
-  violet:  { bg: "bg-violet-50", text: "text-violet-600", bar: "bg-violet-500", border: "border-l-violet-500", iconBg: "bg-violet-500" },
+  blue:    { bg: "bg-lavender/10",   text: "text-lavender",  bar: "bg-lavender",   border: "border-l-lavender",  iconBg: "bg-lavender/20" },
+  emerald: { bg: "bg-emerald-500/10", text: "text-emerald-400", bar: "bg-emerald-500", border: "border-l-emerald-500", iconBg: "bg-emerald-500/20" },
+  amber:   { bg: "bg-goldenrod/10",  text: "text-goldenrod",  bar: "bg-goldenrod",  border: "border-l-goldenrod",  iconBg: "bg-goldenrod/20" },
+  violet:  { bg: "bg-lavender/10",   text: "text-lavender",   bar: "bg-lavender",   border: "border-l-lavender",  iconBg: "bg-lavender/20" },
 };
 
 const KPI_ICONS = {
@@ -50,18 +50,18 @@ export default function KpiCard({ label, title, value, delta, trend, icon, color
   const c = COLOR_MAP[color] ?? COLOR_MAP.blue;
 
   return (
-    <div className={`bg-white rounded-xl shadow-md hover:shadow-lg border border-slate-200 border-l-4 ${c.border} p-5 flex flex-col gap-3 transition-all duration-300`}>
+    <div className={`bg-night-purple rounded-xl shadow-lg hover:shadow-xl border border-lavender/10 border-l-4 ${c.border} p-5 flex flex-col gap-3 transition-all duration-300`}>
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">
           {displayLabel}
         </span>
-        <span className={`w-10 h-10 flex items-center justify-center rounded-xl ${c.iconBg} shadow-sm`}>
-          <span className="text-white">{icon || getKpiIcon(displayLabel)}</span>
+        <span className={`w-10 h-10 flex items-center justify-center rounded-xl ${c.iconBg}`}>
+          <span className={c.text}>{icon || getKpiIcon(displayLabel)}</span>
         </span>
       </div>
 
       <div className="flex items-end justify-between">
-        <span className="text-2xl font-bold text-slate-800 leading-none">{value}</span>
+        <span className="font-pixelify text-2xl font-bold text-white leading-none tabular-nums">{value}</span>
         {delta && (
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.bg} ${c.text}`}>
             {trend === "up" ? "▲" : "▼"} {delta}
@@ -69,7 +69,7 @@ export default function KpiCard({ label, title, value, delta, trend, icon, color
         )}
       </div>
 
-      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${c.bar} opacity-60`} style={{ width: trend === "up" ? "72%" : "38%" }} />
       </div>
     </div>

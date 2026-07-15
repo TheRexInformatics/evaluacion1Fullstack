@@ -3,16 +3,16 @@ import { getDashboard } from '../facade/BffFacade';
 
 const TYPE_CONFIG = {
   order: {
-    color: "bg-blue-50 text-blue-600",
+    color: "bg-lavender/10 text-lavender",
   },
   stock: {
-    color: "bg-amber-50 text-amber-600",
+    color: "bg-goldenrod/10 text-goldenrod",
   },
   ship: {
-    color: "bg-violet-50 text-violet-600",
+    color: "bg-lavender/10 text-lavender",
   },
   user: {
-    color: "bg-slate-100 text-slate-500",
+    color: "bg-white/5 text-white/50",
   },
 };
 
@@ -33,7 +33,7 @@ export default function NotificationDropdown({ onCountChange }) {
           newEvents.forEach(e => lastEventIds.current.add(e.id));
         }
         setEvents(feed.slice(0, 8));
-      } catch {}
+      } catch { /* silenciar errores de polling */ }
     };
     fetchEvents();
     const id = setInterval(fetchEvents, 15000);
@@ -51,13 +51,13 @@ export default function NotificationDropdown({ onCountChange }) {
 
   return (
     <div className="relative">
-      <button onClick={handleToggle} className="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+      <button onClick={handleToggle} className="relative p-2 rounded-lg text-white/30 hover:bg-white/5 hover:text-white/60 transition-colors">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+          <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-tomato text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-night-purple">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -66,22 +66,22 @@ export default function NotificationDropdown({ onCountChange }) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-800">Notificaciones</h3>
+          <div className="absolute right-0 mt-2 w-80 bg-night-purple rounded-xl shadow-2xl border border-lavender/10 z-50 overflow-hidden">
+            <div className="px-4 py-3 border-b border-lavender/10 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">Notificaciones</h3>
               {unreadCount > 0 && (
-                <button onClick={() => setUnreadCount(0)} className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                <button onClick={() => setUnreadCount(0)} className="text-xs text-lavender/80 hover:text-lavender font-medium">
                   Marcar como leídas
                 </button>
               )}
             </div>
             <div className="max-h-[320px] overflow-y-auto">
               {events.length === 0 ? (
-                <div className="px-4 py-8 text-center text-slate-400 text-sm">No hay notificaciones</div>
+                <div className="px-4 py-8 text-center text-white/30 text-sm">No hay notificaciones</div>
               ) : events.map((event) => {
                 const config = TYPE_CONFIG[event.type] || TYPE_CONFIG.user;
                 return (
-                  <div key={event.id} className="px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+                  <div key={event.id} className="px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0">
                     <div className="flex items-start gap-3">
                       <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${config.color}`}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
@@ -93,8 +93,8 @@ export default function NotificationDropdown({ onCountChange }) {
                         </svg>
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-slate-600">{event.msg}</p>
-                        <span className="text-xs text-slate-400">{event.time}</span>
+                        <p className="text-sm text-white/60">{event.msg}</p>
+                        <span className="text-xs text-white/30 font-share-tech">{event.time}</span>
                       </div>
                     </div>
                   </div>

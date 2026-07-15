@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@theme {
+  --font-pixelify: 'Pixelify Sans', sans-serif;
+  --font-share-tech: 'Share Tech Mono', monospace;
+
+  --color-mystic-deep: #1c073b;
+  --color-mystic-light: #2f0a58;
+  --color-night-purple: #170E30;
+  --color-lavender: #8960F6;
+  --color-goldenrod: #DAA520;
+  --color-tomato: #FF6347;
+
+  --color-mystic-deep-rgb: 28, 7, 59;
+  --color-mystic-light-rgb: 47, 10, 88;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -12,9 +27,18 @@ html, body {
   overflow: hidden;
 }
 
+body {
+  background: linear-gradient(135deg, #1c073b, #2f0a58);
+}
+
 #root {
   height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
+}
+
+::selection {
+  background-color: #8960F640;
+  color: #fff;
 }

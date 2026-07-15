@@ -6,27 +6,27 @@ export default function ConfirmDialog({ show, title, message, confirmLabel, savi
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="bg-night-purple rounded-2xl shadow-2xl border border-lavender/10 w-full max-w-sm mx-4 overflow-hidden">
         <div className="px-6 py-5 space-y-2">
-          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-xl mb-3">
+          <div className="w-10 h-10 rounded-full bg-tomato/10 border border-tomato/20 flex items-center justify-center text-xl mb-3">
             ⚠️
           </div>
-          <h3 className="text-base font-bold text-gray-800">{title}</h3>
-          <p className="text-sm text-gray-500">{message}</p>
+          <h3 className="text-base font-bold text-white">{title}</h3>
+          <p className="text-sm text-white/50">{message}</p>
         </div>
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-lavender/10">
           <button
             onClick={onDismiss}
             disabled={saving}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-white/50 hover:bg-white/5 transition-colors disabled:opacity-50"
           >
             Volver
           </button>
           <button
             onClick={onConfirm}
             disabled={saving}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center gap-2"
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-tomato text-white hover:bg-tomato/90 transition-colors disabled:opacity-60 flex items-center gap-2"
           >
             {saving && (
               <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

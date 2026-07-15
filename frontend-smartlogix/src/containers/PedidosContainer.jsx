@@ -8,16 +8,13 @@ export default function PedidosContainer({ clienteId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Estados para Filtros
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
   const [busquedaId, setBusquedaId] = useState('');
 
-  // Estados para el Modal de la Saga
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
 
-  // Cargar datos reales al montar el componente
   useEffect(() => {
     cargarPedidosRest();
     const interval = setInterval(cargarPedidosRest, 15_000);
@@ -27,7 +24,6 @@ export default function PedidosContainer({ clienteId }) {
   const cargarPedidosRest = async () => {
     try {
       setLoading(true);
-      // Llama a tu microservicio real a través del Gateway
       const data = await getPedidos();
       setPedidos(data || []);
     } catch (err) {
@@ -38,7 +34,6 @@ export default function PedidosContainer({ clienteId }) {
     }
   };
 
-  // Función que se ejecuta al hacer clic en un pedido de la tabla
   const handleVerDetalle = async (id) => {
     setIsModalOpen(true);
     setLoadingDetalle(true);
@@ -47,7 +42,6 @@ export default function PedidosContainer({ clienteId }) {
       setPedidoSeleccionado(detalle);
     } catch (err) {
       console.error("Error al obtener detalle del pedido", err);
-      // Fallback: Si el detalle falla, pasamos los datos básicos de la tabla
       const pedidoBasico = pedidos.find(p => p.id === id);
       setPedidoSeleccionado(pedidoBasico);
     } finally {
@@ -55,7 +49,6 @@ export default function PedidosContainer({ clienteId }) {
     }
   };
 
-  // Lógica de Filtros Reales
   const pedidosFiltrados = pedidos.filter((pedido) => {
     const matchEstado = filtroEstado === 'TODOS' || 
                         pedido.sagaStatus === filtroEstado || 
@@ -87,22 +80,21 @@ export default function PedidosContainer({ clienteId }) {
     <div className="flex-1 p-6 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">{clienteId ? 'Mis Pedidos' : 'Gestión de Pedidos'}</h2>
-          <p className="text-xs text-slate-500 mt-0.5">{clienteId ? 'Tus compras' : 'Saga Pattern activo'}</p>
+          <h2 className="font-pixelify text-lg font-bold text-white">{clienteId ? 'Mis Pedidos' : 'Gestión de Pedidos'}</h2>
+          <p className="text-xs text-white/40 mt-0.5">{clienteId ? 'Tus compras' : 'Saga Pattern activo'}</p>
         </div>
-        <button onClick={cargarPedidosRest} className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-medium hover:bg-indigo-100 transition-colors">
+        <button onClick={cargarPedidosRest} className="flex items-center gap-2 px-4 py-2 bg-lavender/10 text-lavender rounded-xl text-sm font-medium hover:bg-lavender/20 transition-colors">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
           Refrescar
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm">
+        <div className="mb-4 p-4 bg-tomato/10 border border-tomato/20 text-tomato rounded-xl text-sm">
           {error}
         </div>
       )}
 
-      {/* Tu componente Presenter Visual (La tabla) */}
       <RecentOrdersTable 
         pedidos={pedidosFiltrados} 
         loading={loading}
@@ -116,7 +108,6 @@ export default function PedidosContainer({ clienteId }) {
         clienteId={clienteId}
       />
 
-      {/* Renderizado del Modal */}
       <ModalPedido 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

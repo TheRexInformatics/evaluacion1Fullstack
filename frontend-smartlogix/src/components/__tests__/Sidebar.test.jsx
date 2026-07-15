@@ -23,13 +23,13 @@ describe('Sidebar', () => {
   it('highlights the active section', () => {
     render(<Sidebar activeSection="Pedidos" userRole="ROLE_ADMIN" />)
     const pedidosBtn = screen.getByText('Pedidos').closest('button')
-    expect(pedidosBtn).toHaveClass('bg-indigo-500/20')
+    expect(pedidosBtn).toHaveClass('bg-lavender/15')
   })
 
   it('does not highlight inactive sections', () => {
     render(<Sidebar activeSection="Dashboard" userRole="ROLE_ADMIN" />)
     const pedidosBtn = screen.getByText('Pedidos').closest('button')
-    expect(pedidosBtn).not.toHaveClass('bg-indigo-500/20')
+    expect(pedidosBtn).not.toHaveClass('bg-lavender/15')
   })
 
   it('renders SmartLogix branding', () => {

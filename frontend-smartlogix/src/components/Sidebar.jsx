@@ -48,17 +48,17 @@ export default function Sidebar({ activeSection, onNavigate, userRole }) {
   const items = isAdmin ? ADMIN_ITEMS : CLIENTE_ITEMS;
 
   return (
-    <aside className="w-64 bg-slate-900 flex flex-col shrink-0 h-full">
-      <div className="px-6 py-6 border-b border-slate-700/50">
+    <aside className="w-64 bg-night-purple flex flex-col shrink-0 h-full border-r border-lavender/10">
+      <div className="px-6 py-6 border-b border-lavender/10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-indigo-500 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <div className="w-9 h-9 rounded-lg bg-lavender/20 border border-lavender/30 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8960F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
             </svg>
           </div>
           <div>
-            <span className="text-white font-bold text-lg tracking-tight leading-none block">SmartLogix</span>
-            <span className="text-slate-500 text-xs">{isAdmin ? 'Panel de Control' : 'Panel Cliente'}</span>
+            <span className="font-pixelify text-white font-bold text-lg leading-none block">SmartLogix</span>
+            <span className="text-white/40 text-xs">{isAdmin ? 'Panel de Control' : 'Panel Cliente'}</span>
           </div>
         </div>
       </div>
@@ -72,25 +72,25 @@ export default function Sidebar({ activeSection, onNavigate, userRole }) {
               onClick={() => onNavigate && onNavigate(section)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-left ${
                 isActive
-                  ? "bg-indigo-500/20 text-indigo-300 border-l-2 border-indigo-400 pl-3"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200 border-l-2 border-transparent pl-3"
+                  ? "bg-lavender/15 text-lavender border-l-2 border-lavender pl-3"
+                  : "text-white/40 hover:bg-white/5 hover:text-white/70 border-l-2 border-transparent pl-3"
               }`}
             >
-              <span className={isActive ? "text-indigo-300" : "text-slate-500"}>{icon}</span>
+              <span className={isActive ? "text-lavender" : "text-white/30"}>{icon}</span>
               {label}
             </button>
           );
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-slate-700/50">
+      <div className="px-4 py-4 border-t border-lavender/10">
         <div className="flex items-center gap-3">
-          <div className={`w-8 h-8 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold shrink-0 ${isAdmin ? 'from-indigo-400 to-blue-500' : 'from-emerald-400 to-teal-500'}`}>
+          <div className={`w-8 h-8 rounded-full bg-lavender/20 border border-lavender/30 flex items-center justify-center text-lavender text-xs font-bold shrink-0`}>
             {isAdmin ? 'A' : 'C'}
           </div>
           <div className="overflow-hidden">
-            <p className="text-slate-300 text-xs font-medium truncate">{isAdmin ? 'Admin SmartLogix' : 'Cliente SmartLogix'}</p>
-            <p className="text-slate-600 text-xs truncate">{isAdmin ? 'admin@smartlogix.cl' : 'cliente@smartlogix.cl'}</p>
+            <p className="text-white/70 text-xs font-medium truncate">{isAdmin ? 'Admin SmartLogix' : 'Cliente SmartLogix'}</p>
+            <p className="text-white/30 text-xs truncate">{isAdmin ? 'admin@smartlogix.cl' : 'cliente@smartlogix.cl'}</p>
           </div>
         </div>
       </div>

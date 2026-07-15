@@ -6,7 +6,7 @@ const TYPE_CONFIG = {
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
       </svg>
     ),
-    color: "bg-blue-50 text-blue-600",
+    color: "bg-lavender/10 text-lavender",
   },
   stock: {
     icon: (
@@ -14,7 +14,7 @@ const TYPE_CONFIG = {
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
       </svg>
     ),
-    color: "bg-amber-50 text-amber-600",
+    color: "bg-goldenrod/10 text-goldenrod",
   },
   ship: {
     icon: (
@@ -24,7 +24,7 @@ const TYPE_CONFIG = {
         <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
       </svg>
     ),
-    color: "bg-violet-50 text-violet-600",
+    color: "bg-lavender/10 text-lavender",
   },
   user: {
     icon: (
@@ -33,25 +33,25 @@ const TYPE_CONFIG = {
         <circle cx="12" cy="7" r="4" />
       </svg>
     ),
-    color: "bg-slate-100 text-slate-500",
+    color: "bg-white/5 text-white/50",
   },
 };
 
 export default function ActivityFeed({ events }) {
   return (
-    <ul className="divide-y divide-slate-50">
+    <ul className="divide-y divide-white/5">
       {events.map((event) => {
         const config = TYPE_CONFIG[event.type] ?? TYPE_CONFIG.user;
         return (
           <li
             key={event.id}
-            className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors"
           >
             <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${config.color}`}>
               {config.icon}
             </span>
-            <p className="text-sm text-slate-600 flex-1">{event.msg}</p>
-            <span className="text-xs text-slate-400 font-mono shrink-0">{event.time}</span>
+            <p className="text-sm text-white/70 flex-1">{event.msg}</p>
+            <span className="text-xs text-white/30 font-share-tech shrink-0">{event.time}</span>
           </li>
         );
       })}
