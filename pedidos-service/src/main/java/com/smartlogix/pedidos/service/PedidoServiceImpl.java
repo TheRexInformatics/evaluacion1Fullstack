@@ -2,13 +2,16 @@ package com.smartlogix.pedidos.service;
 
 import com.smartlogix.pedidos.client.InventarioClient;
 import com.smartlogix.pedidos.dto.PedidoDTO;
+import com.smartlogix.pedidos.dto.PedidoEventoDTO;
 import com.smartlogix.pedidos.dto.ProductoDTO;
 import com.smartlogix.pedidos.model.Pedido;
+import com.smartlogix.pedidos.publisher.PedidoEventPublisher;
 import com.smartlogix.pedidos.repository.PedidoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +21,7 @@ public class PedidoServiceImpl implements PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final InventarioClient inventarioClient;
+    private final PedidoEventPublisher pedidoEventPublisher;
 
     @Override
     @Transactional
@@ -47,6 +51,12 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido guardado = pedidoRepository.save(pedido);
         inventarioClient.reducirStock(pedido.getCodigoProducto(), pedido.getCantidad());
 
+        PedidoEventoDTO evento = new PedidoEventoDTO(
+                guardado.getId(), guardado.getProductoId(), guardado.getCodigoProducto(),
+                guardado.getCantidad(), guardado.getTotal(), guardado.getEstado(),
+                guardado.getClienteId(), LocalDateTime.now());
+        pedidoEventPublisher.publicarPedidoCreado(evento);
+
         return mapearADTO(guardado);
     }
 
@@ -59,6 +69,12 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setSagaStatus("CANCELLED");
         pedido.setEstado("CANCELADO");
         Pedido actualizado = pedidoRepository.save(pedido);
+
+        PedidoEventoDTO evento = new PedidoEventoDTO(
+                actualizado.getId(), actualizado.getProductoId(), actualizado.getCodigoProducto(),
+                actualizado.getCantidad(), actualizado.getTotal(), actualizado.getEstado(),
+                actualizado.getClienteId(), LocalDateTime.now());
+        pedidoEventPublisher.publicarPedidoCancelado(evento);
 
         try {
             inventarioClient.restaurarStock(pedido.getCodigoProducto(), pedido.getCantidad());
