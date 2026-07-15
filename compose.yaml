@@ -48,23 +48,13 @@ services:
       INVENTARIO_SERVICE_URL: http://inventario-service:8081
       ENVIOS_SERVICE_URL: http://envios-service:8083
       STOCK_ALERT_THRESHOLD: ${STOCK_ALERT_THRESHOLD:-10}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     depends_on:
       - inventario-service
       - pedidos-service
       - envios-service
-    networks:
-      - smartlogix-network
-
-  inventario-service:
-    build:
-      context: ./inventario-service
-    container_name: inventario-service
-    ports:
-      - "8081:8081"
-    environment:
-      NEON_INVENTARIO_URL: ${NEON_INVENTARIO_URL}
-      NEON_INVENTARIO_USER: ${NEON_INVENTARIO_USER}
-      NEON_INVENTARIO_PASSWORD: ${NEON_INVENTARIO_PASSWORD}
+      - redis
     networks:
       - smartlogix-network
 
@@ -79,8 +69,13 @@ services:
       NEON_PEDIDOS_USER: ${NEON_PEDIDOS_USER}
       NEON_PEDIDOS_PASSWORD: ${NEON_PEDIDOS_PASSWORD}
       INVENTARIO_SERVICE_URL: http://inventario-service:8081
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
       - inventario-service
+      - rabbitmq
     networks:
       - smartlogix-network
 
@@ -94,6 +89,51 @@ services:
       NEON_ENVIOS_URL: ${NEON_ENVIOS_URL}
       NEON_ENVIOS_USER: ${NEON_ENVIOS_USER}
       NEON_ENVIOS_PASSWORD: ${NEON_ENVIOS_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - rabbitmq
+    networks:
+      - smartlogix-network
+
+  inventario-service:
+    build:
+      context: ./inventario-service
+    container_name: inventario-service
+    ports:
+      - "8081:8081"
+    environment:
+      NEON_INVENTARIO_URL: ${NEON_INVENTARIO_URL}
+      NEON_INVENTARIO_USER: ${NEON_INVENTARIO_USER}
+      NEON_INVENTARIO_PASSWORD: ${NEON_INVENTARIO_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+    depends_on:
+      - rabbitmq
+    networks:
+      - smartlogix-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - smartlogix-network
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     networks:
       - smartlogix-network
 

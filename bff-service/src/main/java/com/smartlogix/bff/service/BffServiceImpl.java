@@ -2,6 +2,7 @@ package com.smartlogix.bff.service;
 
 import com.smartlogix.bff.dto.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,12 +25,14 @@ public class BffServiceImpl implements BffService {
     private int stockAlertThreshold;
 
     @Override
+    @Cacheable("kpis")
     public KpisDTO obtenerKpis() {
         List<PedidoDTO> pedidos = listarPedidos();
         return calcularKpis(pedidos);
     }
 
     @Override
+    @Cacheable("dashboard")
     public DashboardDTO obtenerDashboard() {
         List<PedidoDTO> pedidos = listarPedidos();
         List<StockDTO> stocks = listarStocks();
