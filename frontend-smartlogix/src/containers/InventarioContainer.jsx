@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getProductos, crearProducto, getStocks, entradaStock, salidaStock, formatCurrency } from '../facade/BffFacade';
+import { getProductos, crearProducto, entradaStock, salidaStock, getStocks, formatCurrency } from '../facade/BffFacade';
 import Button from '../components/ui/Button';
+import { GLASS } from '../lib/styles';
 
 export default function InventarioContainer() {
   const [productos, setProductos] = useState([]);
@@ -76,7 +77,7 @@ export default function InventarioContainer() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-sans text-lg font-bold text-white">Inventario</h2>
+          <h2 className="font-heading text-lg font-bold text-white">Inventario</h2>
           <p className="text-xs text-white/40 mt-0.5">{productos.length} productos</p>
         </div>
         <Button onClick={() => setShowCreate(true)}>
@@ -86,8 +87,8 @@ export default function InventarioContainer() {
       </div>
 
       {showCreate && (
-        <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 p-6">
-          <h3 className="text-sm font-semibold text-white mb-4">Crear Producto</h3>
+        <div className={`${GLASS} p-6`}>
+          <h3 className="text-sm font-heading font-semibold text-white mb-4">Crear Producto</h3>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -121,11 +122,11 @@ export default function InventarioContainer() {
         </div>
       )}
 
-      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 overflow-clip">
+      <div className={`${GLASS} overflow-clip`}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-lavender/10">
+              <tr className="border-b border-white/[0.06]">
                 <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Producto</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">SKU</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Precio</th>
@@ -146,7 +147,7 @@ export default function InventarioContainer() {
                       <span className="font-medium text-white">{p.nombre}</span>
                       <span className="block text-xs text-white/40 truncate max-w-[200px]">{p.descripcion}</span>
                     </td>
-                    <td className="px-5 py-3.5"><code className="text-xs bg-white/5 px-2 py-0.5 rounded text-white/60 border border-lavender/10">{p.sku}</code></td>
+                    <td className="px-5 py-3.5"><code className="text-xs bg-white/5 px-2 py-0.5 rounded text-white/60 border border-white/[0.08]">{p.sku}</code></td>
                     <td className="px-5 py-3.5 text-white font-semibold tabular-nums">{formatCurrency(p.precio)}</td>
                     <td className="px-5 py-3.5">
                       <span className={`text-sm font-semibold ${stock === 0 ? 'text-tomato' : stock < 10 ? 'text-goldenrod' : 'text-emerald-400'}`}>
@@ -167,7 +168,7 @@ export default function InventarioContainer() {
             </tbody>
             {productos.length > 0 && (
               <tfoot>
-                <tr className="border-t border-lavender/10 bg-white/[0.02]">
+                <tr className="border-t border-white/[0.06] bg-white/[0.02]">
                   <td className="px-5 py-3 text-xs font-semibold text-white/40" colSpan={2}>
                     {productos.length} producto{productos.length !== 1 ? 's' : ''}
                   </td>
@@ -190,8 +191,8 @@ export default function InventarioContainer() {
 
       {stockModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setStockModal(null)}>
-          <div className="bg-night-purple rounded-2xl shadow-2xl border border-lavender/10 p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()}>
-            <h3 className="text-sm font-semibold text-white mb-4">Cantidad</h3>
+          <div className={`${GLASS} p-6 w-full max-w-sm mx-4`} onClick={e => e.stopPropagation()}>
+            <h3 className="text-sm font-heading font-semibold text-white mb-4">Cantidad</h3>
             <input type="number" min="1" value={cantidad} onChange={e => setCantidad(e.target.value)}
               className="w-full px-4 py-2.5 bg-white/5 border border-lavender/15 rounded-xl text-sm text-white focus:ring-2 focus:ring-lavender/30 focus:border-lavender/40 outline-none mb-4" placeholder="1" autoFocus />
             <div className="flex gap-3 justify-end">

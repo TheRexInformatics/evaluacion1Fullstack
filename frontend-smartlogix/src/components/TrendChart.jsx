@@ -23,7 +23,7 @@ function CustomTooltip({ active, payload, label }) {
 export default function TrendChart() {
   return (
     <div className="bg-white/[0.04] backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.25)] p-6 min-h-[320px]">
-      <h3 className="text-sm font-semibold text-white mb-4">Pedidos — Últimos 7 días</h3>
+      <h3 className="text-sm font-heading font-semibold text-white mb-4">Pedidos — Últimos 7 días</h3>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={TREND_DATA} barCategoryGap="20%">
           <XAxis

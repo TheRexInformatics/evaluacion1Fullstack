@@ -21,8 +21,8 @@ export default function FiltrosPedidos({
   onFilterFechaHasta,
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-4 px-5 py-4 border-b border-lavender/10">
-      <div className="flex items-center gap-1.5 bg-white/5 border border-lavender/15 rounded-lg p-1">
+    <div className="flex flex-wrap items-center gap-4 px-5 py-4 border-b border-white/[0.06]">
+      <div className="flex items-center gap-1.5 bg-white/5 border border-white/[0.08] rounded-lg p-1">
         {STATUS_TABS.map(({ value, label }) => {
           const isActive = filterStatus === value;
           return (

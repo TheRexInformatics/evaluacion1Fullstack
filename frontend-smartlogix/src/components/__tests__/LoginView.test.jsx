@@ -17,13 +17,13 @@ describe('LoginView', () => {
 
   it('renders form fields', () => {
     render(<LoginView {...defaultProps} />)
-    expect(screen.getByPlaceholderText('tu_usuario')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('tu_firma')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument()
   })
 
   it('renders submit button with default text', () => {
     render(<LoginView {...defaultProps} />)
-    expect(screen.getByRole('button', { name: 'Iniciar Sesión' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Entrar al Panel' })).toBeInTheDocument()
   })
 
   it('shows loading text and disables button when loading', () => {
@@ -46,7 +46,7 @@ describe('LoginView', () => {
   it('calls setUsername when typing in username field', async () => {
     const user = userEvent.setup()
     render(<LoginView {...defaultProps} />)
-    await user.type(screen.getByPlaceholderText('tu_usuario'), 'admin')
+    await user.type(screen.getByPlaceholderText('tu_firma'), 'admin')
     expect(defaultProps.setUsername).toHaveBeenCalled()
   })
 

@@ -14,7 +14,7 @@ describe('LoginContainer', () => {
 
   it('renders login form', () => {
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
-    expect(screen.getByPlaceholderText('tu_usuario')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('tu_firma')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument()
   })
 
@@ -28,9 +28,9 @@ describe('LoginContainer', () => {
 
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
 
-    await user.type(screen.getByPlaceholderText('tu_usuario'), 'admin')
+    await user.type(screen.getByPlaceholderText('tu_firma'), 'admin')
     await user.type(screen.getByPlaceholderText('••••••••'), 'wrong')
-    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }))
+    await user.click(screen.getByRole('button', { name: 'Entrar al Panel' }))
 
     await waitFor(() => {
       expect(screen.getByText(/Unauthorized/)).toBeInTheDocument()
@@ -49,9 +49,9 @@ describe('LoginContainer', () => {
 
     render(<LoginContainer onLoginSuccess={onLoginSuccess} />)
 
-    await user.type(screen.getByPlaceholderText('tu_usuario'), 'admin')
+    await user.type(screen.getByPlaceholderText('tu_firma'), 'admin')
     await user.type(screen.getByPlaceholderText('••••••••'), 'password')
-    await user.click(screen.getByRole('button', { name: 'Iniciar Sesión' }))
+    await user.click(screen.getByRole('button', { name: 'Entrar al Panel' }))
 
     await waitFor(() => {
       expect(localStorage.getItem('smartlogix_token')).toBe('jwt-token-123')

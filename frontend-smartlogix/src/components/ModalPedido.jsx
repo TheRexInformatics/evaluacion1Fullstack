@@ -7,10 +7,10 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-black/60">
       <div className="relative w-full max-w-2xl p-4">
-        <div className="relative bg-night-purple rounded-2xl shadow-2xl border border-lavender/10 flex flex-col">
+        <div className="relative bg-white/[0.06] backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.25)] flex flex-col">
           
-          <div className="flex items-center justify-between p-5 border-b border-lavender/10 rounded-t">
-            <h3 className="font-sans text-xl font-semibold text-white">
+          <div className="flex items-center justify-between p-5 border-b border-white/[0.06] rounded-t">
+            <h3 className="font-heading text-xl font-semibold text-white">
               Detalle del Pedido {pedido?.id ? `#${pedido.id}` : ''}
             </h3>
             <button 
@@ -44,7 +44,7 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/5 p-4 rounded-lg border border-lavender/10">
+                  <div className="bg-white/5 p-4 rounded-lg border border-white/[0.08]">
                     <p className="text-sm text-white/40">Estado de la Saga</p>
                     <p className={`font-bold ${
                       pedido.sagaStatus === 'CONFIRMED' ? 'text-emerald-400' :
@@ -54,7 +54,7 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
                       {pedido.sagaStatus || 'PENDING'}
                     </p>
                   </div>
-                  <div className="bg-white/5 p-4 rounded-lg border border-lavender/10">
+                  <div className="bg-white/5 p-4 rounded-lg border border-white/[0.08]">
                     <p className="text-sm text-white/40">Cliente ID</p>
                     <p className="font-semibold text-white">{pedido.clienteId || 'N/A'}</p>
                   </div>
@@ -62,7 +62,7 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
 
                 <div>
                   <h4 className="text-lg font-medium text-white mb-2">Artículos</h4>
-                  <ul className="divide-y divide-white/5 border border-lavender/10 rounded-lg px-4">
+                  <ul className="divide-y divide-white/5 border border-white/[0.08] rounded-lg px-4">
                     <li className="py-3 flex justify-between">
                       <span className="text-white/50">ID Producto: {pedido.productoId || 'N/A'}</span>
                       <span className="font-semibold text-white">Cant: {pedido.cantidad || 1}</span>
@@ -75,7 +75,7 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
             )}
           </div>
 
-          <div className="flex items-center justify-end p-5 border-t border-lavender/10">
+          <div className="flex items-center justify-end p-5 border-t border-white/[0.06]">
             <Button onClick={onClose}>
               Cerrar
             </Button>

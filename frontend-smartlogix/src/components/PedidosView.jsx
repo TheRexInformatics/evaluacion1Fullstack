@@ -31,20 +31,34 @@ function SkeletonRows() {
 }
 
 function TablaPedidos({ pedidos, loading, onVerDetalle, onEdit, onCancel }) {
+  if (pedidos.length === 0 && !loading) {
+    return (
+      <div className="p-8 text-center flex flex-col items-center justify-center">
+        <div className="w-12 h-12 rounded-xl bg-lavender/10 border border-lavender/20 flex items-center justify-center mb-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-lavender">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+        </div>
+        <h4 className="text-sm font-semibold text-white">Sin pedidos</h4>
+        <p className="text-xs text-white/40 mt-1">No se encontraron pedidos con los filtros aplicados.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-lavender/10">
+          <tr className="border-b border-white/[0.06]">
             {["Pedido", "Cliente / ID", "Ítems", "Total", "Fecha", "Estado Saga", "Acciones"].map((h) => (
               <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider whitespace-nowrap">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
-          {loading ? <SkeletonRows /> : pedidos.length === 0 ? (
-            <tr><td colSpan={7} className="px-5 py-12 text-center text-white/40 text-sm">No se encontraron pedidos con los filtros aplicados.</td></tr>
-          ) : pedidos.map((p) => {
+          {loading ? <SkeletonRows /> : pedidos.map((p) => {
             const clientLabel   = p.clienteId ?? p.client ?? "—";
             const statusKey     = p.sagaStatus ?? p.status;
             const isCancellable = statusKey === "PENDING" || statusKey === "CONFIRMED";
@@ -97,7 +111,7 @@ export default function PedidosView({
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-sans text-lg font-bold text-white">Gestión de Pedidos</h2>
+          <h2 className="font-heading text-lg font-bold text-white">Gestión de Pedidos</h2>
           <p className="text-xs text-white/40 mt-0.5">
             {loading ? "Cargando..." : `${pedidos.length} pedido${pedidos.length !== 1 ? "s" : ""} encontrado${pedidos.length !== 1 ? "s" : ""}`}
           </p>
@@ -107,13 +121,13 @@ export default function PedidosView({
         </Button>
       </div>
 
-      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10">
+      <div className="bg-white/[0.06] backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
         <FiltrosPedidos
           filterStatus={filterStatus} filterFechaDesde={filterFechaDesde} filterFechaHasta={filterFechaHasta}
           onFilterStatus={onFilterStatus} onFilterFechaDesde={onFilterFechaDesde} onFilterFechaHasta={onFilterFechaHasta}
         />
 
-        <div className="px-5 py-3 border-b border-lavender/10">
+        <div className="px-5 py-3 border-b border-white/[0.06]">
           <div className="flex items-center gap-2 bg-white/5 border border-lavender/15 rounded-lg px-3 py-2 max-w-sm">
             <span className="text-white/30 text-sm">🔍</span>
             <input type="text" value={searchClienteId} onChange={(e) => onSearchClienteId(e.target.value)}

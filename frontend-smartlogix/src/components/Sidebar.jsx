@@ -48,8 +48,8 @@ export default function Sidebar({ activeSection, onNavigate, userRole }) {
   const items = isAdmin ? ADMIN_ITEMS : CLIENTE_ITEMS;
 
   return (
-    <aside className="w-64 bg-night-purple flex flex-col shrink-0 h-full border-r border-lavender/10">
-      <div className="px-6 py-6 border-b border-lavender/10">
+    <aside className="w-64 bg-night-purple/80 backdrop-blur-md flex flex-col shrink-0 h-full border-r border-white/[0.06]">
+      <div className="px-6 py-6 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-lavender/20 border border-lavender/30 flex items-center justify-center">
             <svg viewBox="0 0 24 24" fill="none" stroke="#8960F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -57,7 +57,7 @@ export default function Sidebar({ activeSection, onNavigate, userRole }) {
             </svg>
           </div>
           <div>
-            <span className="font-pixelify text-white font-bold text-lg leading-none block">SmartLogix</span>
+            <span className="font-heading text-white font-bold text-lg leading-none block">SmartLogix</span>
             <span className="text-white/40 text-xs">{isAdmin ? 'Panel de Control' : 'Panel Cliente'}</span>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function Sidebar({ activeSection, onNavigate, userRole }) {
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-lavender/10">
+      <div className="px-4 py-4 border-t border-white/[0.06]">
         <div className="flex items-center gap-3">
           <div className={`w-8 h-8 rounded-full bg-lavender/20 border border-lavender/30 flex items-center justify-center text-lavender text-xs font-bold shrink-0`}>
             {isAdmin ? 'A' : 'C'}

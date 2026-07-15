@@ -64,7 +64,7 @@ export default function RecentOrdersTable({
 
   return (
     <>
-      <div className="bg-night-purple p-4">
+      <div className="bg-white/[0.02] p-4">
         <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4">
         <div className="relative">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/30">
@@ -94,7 +94,7 @@ export default function RecentOrdersTable({
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-lavender/10">
+              <tr className="border-b border-white/[0.06]">
                 <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Pedido ID</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Cliente</th>
                 <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Estado</th>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getPedidos, crearEnvio, getEnvioByPedidoId, actualizarEstadoEnvio } from '../facade/BffFacade';
 import Button from '../components/ui/Button';
+import { GLASS } from '../lib/styles';
 
 const ESTADOS_FLUJO = ['PREPARACION', 'EN_TRANSITO', 'ENTREGADO'];
 const ESTADO_COLORS = {
@@ -80,7 +81,7 @@ export default function EnviosContainer() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-sans text-lg font-bold text-white">Envíos</h2>
+          <h2 className="font-heading text-lg font-bold text-white">Envíos</h2>
           <p className="text-xs text-white/40 mt-0.5">{pedidos.length} pedidos en sistema</p>
         </div>
         <Button onClick={() => setShowCreate(true)}>
@@ -90,8 +91,8 @@ export default function EnviosContainer() {
       </div>
 
       {showCreate && (
-        <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 p-6">
-          <h3 className="text-sm font-semibold text-white mb-4">Nuevo Envío</h3>
+        <div className={`${GLASS} p-6`}>
+          <h3 className="text-sm font-heading font-semibold text-white mb-4">Nuevo Envío</h3>
           <form onSubmit={handleCrearEnvio} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -115,25 +116,37 @@ export default function EnviosContainer() {
         </div>
       )}
 
-      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 overflow-clip">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-lavender/10">
-                <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Pedido ID</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Destino</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Tracking</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Estado</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Transportista</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Acción</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {loading ? (
-                <tr><td colSpan={6} className="px-5 py-12 text-center text-white/40 text-sm">Cargando envíos...</td></tr>
-              ) : pedidos.length === 0 ? (
-                <tr><td colSpan={6} className="px-5 py-12 text-center text-white/40 text-sm">No hay pedidos en el sistema.</td></tr>
-              ) : pedidos.map(p => {
+      <div className={`${GLASS} overflow-clip`}>
+        {pedidos.length === 0 && !loading ? (
+          <div className="p-8 text-center flex flex-col items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-lavender/10 border border-lavender/20 flex items-center justify-center mb-3">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-lavender">
+                <rect x="1" y="3" width="15" height="13" rx="1" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+              </svg>
+            </div>
+            <h4 className="text-sm font-semibold text-white">Sin envíos activos</h4>
+            <p className="text-xs text-white/40 mt-1">No hay pedidos en el sistema para gestionar envíos.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Pedido ID</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Destino</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Tracking</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Estado</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Transportista</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold text-white/40 uppercase tracking-wider">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {loading ? (
+                  <tr><td colSpan={6} className="px-5 py-12 text-center text-white/40 text-sm">Cargando envíos...</td></tr>
+                ) : pedidos.map(p => {
                 const envio = envios[p.id];
                 const col = envio ? ESTADO_COLORS[envio.estado] || ESTADO_COLORS.PREPARACION : null;
                 const idx = envio ? ESTADOS_FLUJO.indexOf(envio.estado) : -1;
@@ -145,7 +158,7 @@ export default function EnviosContainer() {
                     <td className="px-5 py-3.5 text-white/60">{envio?.direccionDestino || '—'}</td>
                     <td className="px-5 py-3.5">
                       {envio ? (
-                        <code className="text-xs bg-white/5 px-2 py-0.5 rounded text-white/60 border border-lavender/10">{envio.codigoSeguimiento}</code>
+                        <code className="text-xs bg-white/5 px-2 py-0.5 rounded text-white/60 border border-white/[0.08]">{envio.codigoSeguimiento}</code>
                       ) : (
                         <span className="text-xs text-white/30">Sin envío</span>
                       )}
@@ -181,6 +194,7 @@ export default function EnviosContainer() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </main>
   );

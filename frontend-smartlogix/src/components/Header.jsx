@@ -18,9 +18,9 @@ export default function Header({ section, userName = "Admin", onLogout }) {
 
   return (
     <>
-      <header className="bg-night-purple border-b border-lavender/10 px-6 py-3 flex items-center justify-between shrink-0">
+      <header className="bg-night-purple/80 backdrop-blur-md border-b border-white/[0.06] px-6 py-3 flex items-center justify-between shrink-0">
         <div>
-          <h1 className="font-sans text-white font-semibold text-lg leading-tight">{section}</h1>
+          <h1 className="font-heading text-white font-semibold text-lg leading-tight">{section}</h1>
           <p className="text-white/40 text-xs capitalize">{now}</p>
         </div>
 
@@ -28,7 +28,7 @@ export default function Header({ section, userName = "Admin", onLogout }) {
           <NotificationDropdown />
           <CartDropdown userName={userName} />
 
-          <div className="flex items-center gap-3 pl-3 border-l border-lavender/10">
+          <div className="flex items-center gap-3 pl-3 border-l border-white/[0.06]">
             <div className="w-8 h-8 rounded-full bg-lavender/20 border border-lavender/30 flex items-center justify-center text-lavender text-xs font-bold shrink-0">
               {initials || "AD"}
             </div>

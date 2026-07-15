@@ -37,15 +37,15 @@ export default function ModalDetallePedido({ pedido, loadingDetalle, onClose, on
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       onClick={handleBackdrop}
     >
-      <div className="bg-night-purple rounded-2xl shadow-2xl border border-lavender/10 w-full max-w-lg mx-4 overflow-hidden">
+      <div className="bg-white/[0.06] backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.25)] w-full max-w-lg mx-4 overflow-clip">
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-lavender/10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-lavender/10 border border-lavender/20 flex items-center justify-center text-lg">
               🛒
             </div>
             <div>
-              <h2 className="font-sans text-base font-bold text-white">
+              <h2 className="font-heading text-base font-bold text-white">
                 {loadingDetalle ? "Cargando detalle..." : `Pedido ${pedido?.id}`}
               </h2>
               <p className="text-xs text-white/40">Información completa del pedido</p>
@@ -115,7 +115,7 @@ export default function ModalDetallePedido({ pedido, loadingDetalle, onClose, on
         </div>
 
         {!loadingDetalle && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-lavender/10">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-white/[0.06]">
             <Button variant="secondary" onClick={onClose}>Cerrar</Button>
             <div className="flex items-center gap-2">
               {isEditable && (

@@ -7,15 +7,15 @@ export default function ConfirmDialog({ show, title, message, confirmLabel, savi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-night-purple rounded-2xl shadow-2xl border border-lavender/10 w-full max-w-sm mx-4 overflow-hidden">
+      <div className="bg-white/[0.06] backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.25)] w-full max-w-sm mx-4 overflow-clip">
         <div className="px-6 py-5 space-y-2">
           <div className="w-10 h-10 rounded-full bg-tomato/10 border border-tomato/20 flex items-center justify-center text-xl mb-3">
             ⚠️
           </div>
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-heading font-bold text-white">{title}</h3>
           <p className="text-sm text-white/50">{message}</p>
         </div>
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-lavender/10">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-white/[0.06]">
           <button
             onClick={onDismiss}
             disabled={saving}

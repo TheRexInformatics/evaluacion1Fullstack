@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { getDashboard } from '../facade/BffFacade';
 
 const TYPE_CONFIG = {
@@ -21,6 +22,8 @@ export default function NotificationDropdown({ onCountChange }) {
   const [events, setEvents] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const lastEventIds = useRef(new Set());
+  const triggerRef = useRef(null);
+  const [triggerRect, setTriggerRect] = useState(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -44,14 +47,29 @@ export default function NotificationDropdown({ onCountChange }) {
     onCountChange?.(unreadCount);
   }, [unreadCount]);
 
-  const handleToggle = () => {
-    setOpen(!open);
+  const handleToggle = useCallback(() => {
+    if (!open && triggerRef.current) {
+      setTriggerRect(triggerRef.current.getBoundingClientRect());
+    }
+    setOpen(prev => !prev);
     if (!open) setUnreadCount(0);
-  };
+  }, [open]);
+
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const panelStyle = triggerRect
+    ? { position: 'fixed', top: triggerRect.bottom + 8, right: window.innerWidth - triggerRect.right, zIndex: 50 }
+    : { position: 'fixed', top: 56, right: 148, zIndex: 50 };
 
   return (
     <div className="relative">
-      <button onClick={handleToggle} className="relative p-2 rounded-lg text-white/30 hover:bg-white/5 hover:text-white/60 transition-colors">
+      <button
+        ref={triggerRef}
+        onClick={handleToggle}
+        className="relative p-2 rounded-lg text-white/30 hover:bg-white/5 hover:text-white/60 transition-colors"
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -63,12 +81,15 @@ export default function NotificationDropdown({ onCountChange }) {
         )}
       </button>
 
-      {open && (
+      {open && createPortal(
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-80 bg-night-purple rounded-xl shadow-2xl border border-lavender/10 z-50 overflow-hidden">
-            <div className="px-4 py-3 border-b border-lavender/10 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Notificaciones</h3>
+          <div className="fixed inset-0 z-40" onClick={handleClose} />
+          <div
+            className="w-80 bg-[#170E30]/90 backdrop-blur-xl rounded-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.25)] overflow-clip"
+            style={panelStyle}
+          >
+            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between">
+              <h3 className="text-sm font-heading font-semibold text-white">Notificaciones</h3>
               {unreadCount > 0 && (
                 <button onClick={() => setUnreadCount(0)} className="text-xs text-lavender/80 hover:text-lavender font-medium">
                   Marcar como leídas
@@ -102,7 +123,8 @@ export default function NotificationDropdown({ onCountChange }) {
               })}
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );

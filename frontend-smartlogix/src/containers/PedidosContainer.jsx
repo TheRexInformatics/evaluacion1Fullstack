@@ -80,7 +80,7 @@ export default function PedidosContainer({ clienteId }) {
     <div className="flex-1 p-6 overflow-y-auto max-w-screen-2xl mx-auto w-full">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="font-sans text-lg font-bold text-white">{clienteId ? 'Mis Pedidos' : 'Gestión de Pedidos'}</h2>
+          <h2 className="font-heading text-lg font-bold text-white">{clienteId ? 'Mis Pedidos' : 'Gestión de Pedidos'}</h2>
           <p className="text-xs text-white/40 mt-0.5">{clienteId ? 'Tus compras' : 'Saga Pattern activo'}</p>
         </div>
         <button onClick={cargarPedidosRest} className="flex items-center gap-2 px-4 py-2 bg-lavender/10 text-lavender rounded-xl text-sm font-medium hover:bg-lavender/20 transition-colors">

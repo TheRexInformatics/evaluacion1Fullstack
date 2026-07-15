@@ -66,8 +66,15 @@ async function fetchWithAuth(endpoint, options = {}) {
     }
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error || `Error del servidor: ${response.status}`);
+      const errText = await response.text().catch(() => '');
+      let errMsg = `Error del servidor: ${response.status}`;
+      try {
+        const errJson = JSON.parse(errText);
+        errMsg = errJson.error || errJson.message || errMsg;
+      } catch {
+        if (errText) errMsg = errText;
+      }
+      throw new Error(errMsg);
     }
 
     return await response.json();
