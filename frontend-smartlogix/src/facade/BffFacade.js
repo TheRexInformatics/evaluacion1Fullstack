@@ -1,5 +1,10 @@
 const TOKEN_KEY = 'smartlogix_token';
 
+export function formatCurrency(value) {
+  const num = Number(value ?? 0);
+  return `$${num.toLocaleString('es-CL', { maximumFractionDigits: 0 })}`;
+}
+
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -186,7 +191,7 @@ export async function actualizarEstadoEnvio(id, estado, transportista) {
 function mapKpis(kpisData) {
   return [
     { id: 1, label: "Total Pedidos", value: kpisData.totalPedidos ?? 0, delta: null, trend: null, color: "blue" },
-    { id: 2, label: "Ingresos", value: `$${kpisData.ingresos ?? 0}`, delta: null, trend: null, color: "emerald" },
+    { id: 2, label: "Ingresos", value: formatCurrency(kpisData.ingresos ?? 0), delta: null, trend: null, color: "emerald" },
     { id: 3, label: "Entregados", value: kpisData.entregados ?? 0, delta: null, trend: null, color: "violet" },
     { id: 4, label: "Pendientes", value: kpisData.pendientes ?? 0, delta: null, trend: null, color: "amber" },
   ];

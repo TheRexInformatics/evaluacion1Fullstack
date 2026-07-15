@@ -47,7 +47,7 @@ describe('DashboardView', () => {
     render(<DashboardView loading={false} error={null} data={mockData} activeSection="Dashboard" />)
     expect(screen.getByText('Pedidos Recientes')).toBeInTheDocument()
     expect(screen.getByText(/Alertas de Stock/)).toBeInTheDocument()
-    expect(screen.getByText('Actividad Reciente del Sistema')).toBeInTheDocument()
+    expect(screen.getByText('Actividad Reciente')).toBeInTheDocument()
   })
 
   it('renders stock alerts count badge', () => {

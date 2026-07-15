@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './ui/Button';
 
 export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
   if (!isOpen) return null;
@@ -9,7 +10,7 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
         <div className="relative bg-night-purple rounded-2xl shadow-2xl border border-lavender/10 flex flex-col">
           
           <div className="flex items-center justify-between p-5 border-b border-lavender/10 rounded-t">
-            <h3 className="font-pixelify text-xl font-semibold text-white">
+            <h3 className="font-sans text-xl font-semibold text-white">
               Detalle del Pedido {pedido?.id ? `#${pedido.id}` : ''}
             </h3>
             <button 
@@ -22,7 +23,7 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
             </button>
           </div>
 
-          <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+          <div className="p-6 space-y-8 flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex justify-center items-center h-32">
                 <span className="text-white/40">Cargando detalles desde el microservicio...</span>
@@ -75,12 +76,9 @@ export default function ModalPedido({ isOpen, onClose, pedido, loading }) {
           </div>
 
           <div className="flex items-center justify-end p-5 border-t border-lavender/10">
-            <button 
-              onClick={onClose}
-              className="text-white bg-lavender hover:bg-lavender/90 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
-            >
+            <Button onClick={onClose}>
               Cerrar
-            </button>
+            </Button>
           </div>
         </div>
       </div>

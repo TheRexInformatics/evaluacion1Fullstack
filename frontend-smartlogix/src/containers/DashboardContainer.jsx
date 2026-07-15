@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import DashboardView from "../components/DashboardView";
 import { bffFacade } from "../facade/BffFacade";
 
-export default function DashboardContainer({ onNavigate }) {
+export default function DashboardContainer({ onNavigate, userName }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,6 +32,7 @@ export default function DashboardContainer({ onNavigate }) {
       activeSection="Dashboard"
       onRefresh={loadDashboard}
       onNavigate={onNavigate}
+      userName={userName}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getProductos, getStocks } from '../facade/BffFacade';
+import { getProductos, getStocks, formatCurrency } from '../facade/BffFacade';
 import { useCart } from '../context/CartContext';
+import Button from '../components/ui/Button';
 
 export default function StoreContainer() {
   const [productos, setProductos] = useState([]);
@@ -31,7 +32,7 @@ export default function StoreContainer() {
 
   if (loading) {
     return (
-      <main className="flex-1 overflow-y-auto p-6">
+    <main className="flex-1 overflow-y-auto p-6 max-w-screen-2xl mx-auto w-full">
         <div className="text-center py-12 text-white/40">Cargando productos...</div>
       </main>
     );
@@ -45,7 +46,7 @@ export default function StoreContainer() {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="font-pixelify text-lg font-bold text-white">Tienda SmartLogix</h2>
+          <h2 className="font-sans text-lg font-bold text-white">Tienda SmartLogix</h2>
           <p className="text-xs text-white/40 mt-0.5">{productos.length} productos disponibles</p>
         </div>
       </div>
@@ -62,17 +63,17 @@ export default function StoreContainer() {
               <h3 className="text-sm font-semibold text-white">{p.nombre}</h3>
               <p className="text-xs text-white/40 mt-0.5 truncate">{p.descripcion}</p>
               <div className="flex items-center justify-between mt-3">
-                <span className="font-pixelify text-lg font-bold text-white tabular-nums">${Number(p.precio).toLocaleString()}</span>
+                <span className="font-sans text-lg font-bold text-white tabular-nums">{formatCurrency(p.precio)}</span>
                 <span className={`text-xs font-medium ${(stocks[p.id] || 0) === 0 ? 'text-tomato' : (stocks[p.id] || 0) < 5 ? 'text-goldenrod' : 'text-emerald-400'}`}>
                   {(stocks[p.id] || 0)} unid.
                 </span>
               </div>
-              <button
+              <Button
                 onClick={() => addToCart(p)}
                 disabled={(stocks[p.id] || 0) <= 0}
-                className="mt-3 w-full py-2 bg-lavender hover:bg-lavender/90 disabled:bg-white/10 disabled:text-white/30 text-white text-sm font-semibold rounded-lg transition-colors">
+                className="w-full">
                 {(stocks[p.id] || 0) <= 0 ? 'Agotado' : 'Agregar al carrito'}
-              </button>
+              </Button>
             </div>
           </div>
         ))}

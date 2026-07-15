@@ -1,3 +1,6 @@
+import { formatCurrency } from '../facade/BffFacade';
+import Button from './ui/Button';
+
 const STATUS_CONFIG = {
   CONFIRMED: { label: "Confirmado", badge: "bg-emerald-500/15 text-emerald-400", icon: "✅" },
   PENDING:   { label: "Pendiente",  badge: "bg-goldenrod/15 text-goldenrod", icon: "⏳" },
@@ -42,18 +45,16 @@ export default function ModalDetallePedido({ pedido, loadingDetalle, onClose, on
               🛒
             </div>
             <div>
-              <h2 className="font-pixelify text-base font-bold text-white">
+              <h2 className="font-sans text-base font-bold text-white">
                 {loadingDetalle ? "Cargando detalle..." : `Pedido ${pedido?.id}`}
               </h2>
               <p className="text-xs text-white/40">Información completa del pedido</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:bg-white/5 hover:text-white transition-colors"
-          >
+          <Button variant="ghost" size="sm" onClick={onClose}
+            className="w-8 h-8 p-0">
             ✕
-          </button>
+          </Button>
         </div>
 
         <div className="px-6 py-5">
@@ -86,7 +87,7 @@ export default function ModalDetallePedido({ pedido, loadingDetalle, onClose, on
                 <DetailRow label="ID Pedido"    value={pedido?.id}          mono />
                 <DetailRow label="Cliente"      value={pedido?.clienteId ?? pedido?.client} />
                 <DetailRow label="Ítems"        value={pedido?.items} />
-                <DetailRow label="Total"        value={`$${Number(pedido?.total ?? 0).toLocaleString("es-CL")}`} />
+                <DetailRow label="Total"        value={formatCurrency(pedido?.total ?? 0)} />
                 <DetailRow label="Fecha"        value={pedido?.fecha} />
                 <DetailRow label="Hora"         value={pedido?.hora} />
               </div>
@@ -115,28 +116,18 @@ export default function ModalDetallePedido({ pedido, loadingDetalle, onClose, on
 
         {!loadingDetalle && (
           <div className="flex items-center justify-between px-6 py-4 border-t border-lavender/10">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white/50 hover:bg-white/5 transition-colors"
-            >
-              Cerrar
-            </button>
+            <Button variant="secondary" onClick={onClose}>Cerrar</Button>
             <div className="flex items-center gap-2">
               {isEditable && (
-                <button
-                  onClick={() => onEdit(pedido)}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-lavender border border-lavender/30 hover:bg-lavender/10 transition-colors"
-                >
+                <Button variant="secondary" className="text-lavender border-lavender/30 hover:bg-lavender/10"
+                  onClick={() => onEdit(pedido)}>
                   Editar
-                </button>
+                </Button>
               )}
               {isCancellable && (
-                <button
-                  onClick={() => onCancel(pedido.id)}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold bg-tomato text-white hover:bg-tomato/90 transition-colors"
-                >
+                <Button variant="danger" onClick={() => onCancel(pedido.id)}>
                   Cancelar Pedido
-                </button>
+                </Button>
               )}
             </div>
           </div>

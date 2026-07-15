@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { crearPedido } from '../facade/BffFacade';
+import { crearPedido, formatCurrency } from '../facade/BffFacade';
+import Button from './ui/Button';
 
 export default function CartDropdown({ userName }) {
   const { carrito, updateCantidad, clearCart, totalCarrito, itemsCount } = useCart();
@@ -67,18 +68,18 @@ export default function CartDropdown({ userName }) {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{item.nombre}</p>
-                      <p className="text-xs text-white/40">${Number(item.precio).toLocaleString()} c/u</p>
+                      <p className="text-xs text-white/40">{formatCurrency(item.precio)} c/u</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateCantidad(item.productoId, -1)}
-                        className="w-6 h-6 rounded border border-lavender/15 flex items-center justify-center text-white/50 hover:bg-white/5 text-xs">−</button>
+                      <Button size="sm" variant="secondary" className="w-6 h-6 min-h-0 p-0 text-xs"
+                        onClick={() => updateCantidad(item.productoId, -1)}>−</Button>
                       <span className="text-sm font-semibold text-white w-6 text-center">{item.cantidad}</span>
-                      <button onClick={() => updateCantidad(item.productoId, 1)}
-                        className="w-6 h-6 rounded border border-lavender/15 flex items-center justify-center text-white/50 hover:bg-white/5 text-xs">+</button>
+                      <Button size="sm" variant="secondary" className="w-6 h-6 min-h-0 p-0 text-xs"
+                        onClick={() => updateCantidad(item.productoId, 1)}>+</Button>
                     </div>
-                    <span className="text-sm font-semibold text-white tabular-nums">${Number(item.precio * item.cantidad).toLocaleString()}</span>
+                    <span className="text-sm font-semibold text-white tabular-nums">{formatCurrency(item.precio * item.cantidad)}</span>
                   </div>
                 </div>
               ))}
@@ -88,14 +89,15 @@ export default function CartDropdown({ userName }) {
               <div className="px-4 py-3 border-t border-lavender/10 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-white/50">Total</span>
-                  <span className="font-pixelify text-lg font-bold text-white tabular-nums">${Number(totalCarrito).toLocaleString()}</span>
+                  <span className="font-sans text-lg font-bold text-white tabular-nums">{formatCurrency(totalCarrito)}</span>
                 </div>
-                <button
+                <Button
                   onClick={handleCheckout}
                   disabled={checkingOut}
-                  className="w-full py-2.5 bg-lavender hover:bg-lavender/90 disabled:bg-lavender/50 text-white text-sm font-semibold rounded-xl transition-colors">
+                  loading={checkingOut}
+                  className="w-full">
                   {checkingOut ? 'Procesando...' : 'Comprar ahora'}
-                </button>
+                </Button>
               </div>
             )}
           </div>

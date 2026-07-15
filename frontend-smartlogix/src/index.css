@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: 'Inter', sans-serif;
   --font-pixelify: 'Pixelify Sans', sans-serif;
   --font-share-tech: 'Share Tech Mono', monospace;
 

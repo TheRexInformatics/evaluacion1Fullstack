@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPedidos, crearEnvio, getEnvioByPedidoId, actualizarEstadoEnvio } from '../facade/BffFacade';
+import Button from '../components/ui/Button';
 
 const ESTADOS_FLUJO = ['PREPARACION', 'EN_TRANSITO', 'ENTREGADO'];
 const ESTADO_COLORS = {
@@ -67,7 +68,7 @@ export default function EnviosContainer() {
   };
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6">
+    <main className="flex-1 overflow-y-auto p-6 space-y-8 max-w-screen-2xl mx-auto w-full">
       {error && (
         <div className="bg-tomato/10 border border-tomato/20 text-tomato rounded-xl p-4 text-sm flex items-center gap-2">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 shrink-0">
@@ -79,14 +80,13 @@ export default function EnviosContainer() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-pixelify text-lg font-bold text-white">Envíos</h2>
+          <h2 className="font-sans text-lg font-bold text-white">Envíos</h2>
           <p className="text-xs text-white/40 mt-0.5">{pedidos.length} pedidos en sistema</p>
         </div>
-        <button onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-lavender hover:bg-lavender/90 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+        <Button onClick={() => setShowCreate(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           Crear Envío
-        </button>
+        </Button>
       </div>
 
       {showCreate && (
@@ -106,17 +106,16 @@ export default function EnviosContainer() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button type="submit" disabled={actionLoading}
-                className="px-4 py-2 bg-lavender hover:bg-lavender/90 disabled:bg-lavender/50 text-white text-sm font-semibold rounded-lg transition-colors">
+              <Button type="submit" disabled={actionLoading} loading={actionLoading}>
                 {actionLoading ? 'Creando...' : 'Crear Envío'}
-              </button>
-              <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border border-lavender/15 text-white/50 text-sm rounded-lg hover:bg-white/5">Cancelar</button>
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setShowCreate(false)}>Cancelar</Button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 overflow-hidden">
+      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 overflow-clip">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -164,10 +163,10 @@ export default function EnviosContainer() {
                     <td className="px-5 py-3.5 text-white/60">{envio?.transportista || '—'}</td>
                     <td className="px-5 py-3.5">
                       {envio && puedeAvanzar ? (
-                        <button onClick={() => handleAvanzarEstado(envio)} disabled={actionLoading}
-                          className="text-xs px-3 py-1.5 bg-lavender/10 text-lavender rounded-lg hover:bg-lavender/20 disabled:bg-white/5 disabled:text-white/20 font-medium transition-colors">
+                        <Button size="sm" variant="ghost" className="text-lavender bg-lavender/10 hover:bg-lavender/20"
+                          onClick={() => handleAvanzarEstado(envio)} disabled={actionLoading} loading={actionLoading}>
                           {actionLoading ? '...' : `→ ${ESTADOS_FLUJO[idx + 1]}`}
-                        </button>
+                        </Button>
                       ) : envio?.estado === 'ENTREGADO' ? (
                         <span className="text-xs text-emerald-400 font-medium">✓ Completado</span>
                       ) : !envio ? (

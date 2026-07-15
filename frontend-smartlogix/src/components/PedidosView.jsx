@@ -2,6 +2,8 @@ import FiltrosPedidos      from "./FiltrosPedidos";
 import ModalPedido         from "./ModalPedido";
 import ModalDetallePedido  from "./ModalDetallePedido";
 import ConfirmDialog       from "./ConfirmDialog";
+import Button              from "./ui/Button";
+import { formatCurrency }  from "../facade/BffFacade";
 
 const STATUS_STYLES = {
   CONFIRMED: "bg-emerald-500/15 text-emerald-400",
@@ -52,20 +54,20 @@ function TablaPedidos({ pedidos, loading, onVerDetalle, onEdit, onCancel }) {
                 <td className="px-5 py-3.5 font-share-tech font-semibold text-lavender text-xs">{p.id}</td>
                 <td className="px-5 py-3.5 text-white/70 font-medium max-w-[160px] truncate">{clientLabel}</td>
                 <td className="px-5 py-3.5 text-white/50">{p.items}</td>
-                <td className="px-5 py-3.5 text-white font-semibold tabular-nums">${Number(p.total ?? 0).toLocaleString("es-CL")}</td>
+                <td className="px-5 py-3.5 text-white font-semibold tabular-nums">{formatCurrency(p.total ?? 0)}</td>
                 <td className="px-5 py-3.5 text-white/50 whitespace-nowrap">{p.fecha}</td>
                 <td className="px-5 py-3.5"><SagaBadge status={statusKey} /></td>
                 <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => onEdit(p)} disabled={!isEditable}
-                      className="text-xs font-medium text-lavender/80 hover:text-lavender disabled:text-white/20 disabled:cursor-not-allowed transition-colors">
+                    <Button size="sm" variant="ghost" onClick={() => onEdit(p)} disabled={!isEditable}
+                      className="text-lavender">
                       Editar
-                    </button>
+                    </Button>
                     <span className="text-white/10">|</span>
-                    <button onClick={() => onCancel(p.id)} disabled={!isCancellable}
-                      className="text-xs font-medium text-tomato/80 hover:text-tomato disabled:text-white/20 disabled:cursor-not-allowed transition-colors">
+                    <Button size="sm" variant="ghost" onClick={() => onCancel(p.id)} disabled={!isCancellable}
+                      className="text-tomato">
                       Cancelar
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -88,22 +90,21 @@ export default function PedidosView({
   confirmCancelId, onAskCancel, onConfirmCancel, onDismissCancel,
 }) {
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6">
+    <main className="flex-1 overflow-y-auto p-6 space-y-8 max-w-screen-2xl mx-auto w-full">
       {error && (
         <div className="bg-tomato/10 border border-tomato/20 text-tomato rounded-xl p-4 text-sm">⚠️ {error}</div>
       )}
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-pixelify text-lg font-bold text-white">Gestión de Pedidos</h2>
+          <h2 className="font-sans text-lg font-bold text-white">Gestión de Pedidos</h2>
           <p className="text-xs text-white/40 mt-0.5">
             {loading ? "Cargando..." : `${pedidos.length} pedido${pedidos.length !== 1 ? "s" : ""} encontrado${pedidos.length !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <button onClick={onOpenCreate}
-          className="flex items-center gap-2 px-4 py-2.5 bg-lavender hover:bg-lavender/90 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+        <Button onClick={onOpenCreate}>
           <span className="text-base leading-none">+</span> Nuevo Pedido
-        </button>
+        </Button>
       </div>
 
       <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10">

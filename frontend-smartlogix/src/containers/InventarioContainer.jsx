@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getProductos, crearProducto, getStocks, entradaStock, salidaStock } from '../facade/BffFacade';
+import { getProductos, crearProducto, getStocks, entradaStock, salidaStock, formatCurrency } from '../facade/BffFacade';
+import Button from '../components/ui/Button';
 
 export default function InventarioContainer() {
   const [productos, setProductos] = useState([]);
@@ -63,7 +64,7 @@ export default function InventarioContainer() {
   });
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 space-y-6">
+    <main className="flex-1 overflow-y-auto p-6 space-y-8 max-w-screen-2xl mx-auto w-full">
       {error && (
         <div className="bg-tomato/10 border border-tomato/20 text-tomato rounded-xl p-4 text-sm flex items-center gap-2">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 shrink-0">
@@ -75,14 +76,13 @@ export default function InventarioContainer() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-pixelify text-lg font-bold text-white">Inventario</h2>
+          <h2 className="font-sans text-lg font-bold text-white">Inventario</h2>
           <p className="text-xs text-white/40 mt-0.5">{productos.length} productos</p>
         </div>
-        <button onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-lavender hover:bg-lavender/90 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+        <Button onClick={() => setShowCreate(true)}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           Nuevo Producto
-        </button>
+        </Button>
       </div>
 
       {showCreate && (
@@ -112,17 +112,16 @@ export default function InventarioContainer() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button type="submit" disabled={actionLoading}
-                className="px-4 py-2 bg-lavender hover:bg-lavender/90 disabled:bg-lavender/50 text-white text-sm font-semibold rounded-lg transition-colors">
+              <Button type="submit" disabled={actionLoading} loading={actionLoading}>
                 {actionLoading ? 'Creando...' : 'Crear'}
-              </button>
-              <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 border border-lavender/15 text-white/50 text-sm rounded-lg hover:bg-white/5">Cancelar</button>
+              </Button>
+              <Button type="button" variant="secondary" onClick={() => setShowCreate(false)}>Cancelar</Button>
             </div>
           </form>
         </div>
       )}
 
-      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 overflow-hidden">
+      <div className="bg-night-purple rounded-xl shadow-lg border border-lavender/10 overflow-clip">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -148,7 +147,7 @@ export default function InventarioContainer() {
                       <span className="block text-xs text-white/40 truncate max-w-[200px]">{p.descripcion}</span>
                     </td>
                     <td className="px-5 py-3.5"><code className="text-xs bg-white/5 px-2 py-0.5 rounded text-white/60 border border-lavender/10">{p.sku}</code></td>
-                    <td className="px-5 py-3.5 text-white font-semibold tabular-nums">${Number(p.precio).toLocaleString()}</td>
+                    <td className="px-5 py-3.5 text-white font-semibold tabular-nums">{formatCurrency(p.precio)}</td>
                     <td className="px-5 py-3.5">
                       <span className={`text-sm font-semibold ${stock === 0 ? 'text-tomato' : stock < 10 ? 'text-goldenrod' : 'text-emerald-400'}`}>
                         {stock} unid.
@@ -156,16 +155,35 @@ export default function InventarioContainer() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex gap-2">
-                        <button onClick={() => { setStockModal({ productoId: p.id }); setCantidad(''); }}
-                          className="text-xs px-2.5 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg hover:bg-emerald-500/20 font-medium transition-colors">+ Entrada</button>
-                        <button onClick={() => { setStockModal({ productoId: p.id }); setCantidad(''); }}
-                          className="text-xs px-2.5 py-1.5 bg-goldenrod/10 text-goldenrod rounded-lg hover:bg-goldenrod/20 font-medium transition-colors">- Salida</button>
+                        <Button size="sm" variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
+                          onClick={() => { setStockModal({ productoId: p.id }); setCantidad(''); }}>+ Entrada</Button>
+                        <Button size="sm" variant="secondary" className="bg-goldenrod/10 text-goldenrod border-goldenrod/20 hover:bg-goldenrod/20"
+                          onClick={() => { setStockModal({ productoId: p.id }); setCantidad(''); }}>- Salida</Button>
                       </div>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
+            {productos.length > 0 && (
+              <tfoot>
+                <tr className="border-t border-lavender/10 bg-white/[0.02]">
+                  <td className="px-5 py-3 text-xs font-semibold text-white/40" colSpan={2}>
+                    {productos.length} producto{productos.length !== 1 ? 's' : ''}
+                  </td>
+                  <td className="px-5 py-3 text-xs font-semibold text-white/50 tabular-nums">
+                    Valor total: {formatCurrency(productos.reduce((sum, p) => {
+                      const stock = stockPorProducto[p.id] || 0;
+                      return sum + (Number(p.precio) * stock);
+                    }, 0))}
+                  </td>
+                  <td className="px-5 py-3 text-xs font-semibold text-white/40">
+                    {Object.values(stockPorProducto).reduce((a, b) => a + b, 0)} unid.
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
@@ -177,10 +195,10 @@ export default function InventarioContainer() {
             <input type="number" min="1" value={cantidad} onChange={e => setCantidad(e.target.value)}
               className="w-full px-4 py-2.5 bg-white/5 border border-lavender/15 rounded-xl text-sm text-white focus:ring-2 focus:ring-lavender/30 focus:border-lavender/40 outline-none mb-4" placeholder="1" autoFocus />
             <div className="flex gap-3 justify-end">
-              <button onClick={() => handleStockAction('entrada')} disabled={!cantidad || actionLoading}
-                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-white/10 text-white text-sm font-semibold rounded-lg transition-colors">{actionLoading ? 'Procesando...' : 'Entrada'}</button>
-              <button onClick={() => handleStockAction('salida')} disabled={!cantidad || actionLoading}
-                className="px-4 py-2 bg-goldenrod hover:bg-goldenrod/90 disabled:bg-white/10 text-white text-sm font-semibold rounded-lg transition-colors">{actionLoading ? 'Procesando...' : 'Salida'}</button>
+              <Button onClick={() => handleStockAction('entrada')} disabled={!cantidad || actionLoading} loading={actionLoading}
+                className="bg-emerald-500 hover:bg-emerald-600">{actionLoading ? 'Procesando...' : 'Entrada'}</Button>
+              <Button onClick={() => handleStockAction('salida')} disabled={!cantidad || actionLoading} loading={actionLoading}
+                className="bg-goldenrod hover:bg-goldenrod/90">{actionLoading ? 'Procesando...' : 'Salida'}</Button>
             </div>
           </div>
         </div>

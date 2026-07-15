@@ -1,8 +1,10 @@
+import { useState } from "react";
+
 const COLOR_MAP = {
-  blue:    { bg: "bg-lavender/10",   text: "text-lavender",  bar: "bg-lavender",   border: "border-l-lavender",  iconBg: "bg-lavender/20" },
-  emerald: { bg: "bg-emerald-500/10", text: "text-emerald-400", bar: "bg-emerald-500", border: "border-l-emerald-500", iconBg: "bg-emerald-500/20" },
-  amber:   { bg: "bg-goldenrod/10",  text: "text-goldenrod",  bar: "bg-goldenrod",  border: "border-l-goldenrod",  iconBg: "bg-goldenrod/20" },
-  violet:  { bg: "bg-lavender/10",   text: "text-lavender",   bar: "bg-lavender",   border: "border-l-lavender",  iconBg: "bg-lavender/20" },
+  blue:    { text: "text-lavender",  glow: "0 0 24px -8px #8960F6",   glowHover: "0 0 32px -4px #8960F6" },
+  emerald: { text: "text-emerald-400", glow: "0 0 24px -8px #34d399", glowHover: "0 0 32px -4px #34d399" },
+  amber:   { text: "text-goldenrod", glow: "0 0 24px -8px #DAA520",  glowHover: "0 0 32px -4px #DAA520" },
+  violet:  { text: "text-lavender",  glow: "0 0 24px -8px #8960F6",   glowHover: "0 0 32px -4px #8960F6" },
 };
 
 const KPI_ICONS = {
@@ -46,31 +48,33 @@ function getKpiIcon(title) {
 }
 
 export default function KpiCard({ label, title, value, delta, trend, icon, color }) {
+  const [hovered, setHovered] = useState(false);
   const displayLabel = label || title || "";
   const c = COLOR_MAP[color] ?? COLOR_MAP.blue;
 
   return (
-    <div className={`bg-night-purple rounded-xl shadow-lg hover:shadow-xl border border-lavender/10 border-l-4 ${c.border} p-5 flex flex-col gap-3 transition-all duration-300`}>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="bg-white/[0.06] backdrop-blur-xl rounded-2xl border border-white/[0.08] p-6 flex flex-col gap-3 hover:-translate-y-0.5 transition-all duration-200"
+      style={{ boxShadow: hovered ? c.glowHover : c.glow }}
+    >
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">
           {displayLabel}
         </span>
-        <span className={`w-10 h-10 flex items-center justify-center rounded-xl ${c.iconBg}`}>
+        <span className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/[0.06] backdrop-blur-sm">
           <span className={c.text}>{icon || getKpiIcon(displayLabel)}</span>
         </span>
       </div>
 
       <div className="flex items-end justify-between">
-        <span className="font-pixelify text-2xl font-bold text-white leading-none tabular-nums">{value}</span>
+        <span className="font-sans text-2xl font-bold text-white leading-none tabular-nums">{value}</span>
         {delta && (
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.bg} ${c.text}`}>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full bg-white/[0.06] ${c.text}`}>
             {trend === "up" ? "▲" : "▼"} {delta}
           </span>
         )}
-      </div>
-
-      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${c.bar} opacity-60`} style={{ width: trend === "up" ? "72%" : "38%" }} />
       </div>
     </div>
   );

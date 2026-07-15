@@ -37,15 +37,26 @@ const TYPE_CONFIG = {
   },
 };
 
+const MOCK_EVENTS = [
+  { id: 'm1', type: 'order', msg: 'Pedido #1024 creado por cliente local',     time: 'hace 5 min' },
+  { id: 'm2', type: 'stock', msg: 'Stock actualizado: Monitor LG 27"',         time: 'hace 12 min' },
+  { id: 'm3', type: 'ship',  msg: 'Envío #340 despachado hacia Av. Principal', time: 'hace 28 min' },
+  { id: 'm4', type: 'user',  msg: 'Nuevo usuario registrado: cliente_01',      time: 'hace 1 hora' },
+  { id: 'm5', type: 'order', msg: 'Pedido #1023 completado exitosamente',      time: 'hace 2 horas' },
+  { id: 'm6', type: 'stock', msg: 'Alerta: Teclado Mecánico bajo mínimo',     time: 'hace 3 horas' },
+];
+
 export default function ActivityFeed({ events }) {
+  const displayEvents = (!events || events.length === 0) ? MOCK_EVENTS : events;
+
   return (
-    <ul className="divide-y divide-white/5">
-      {events.map((event) => {
+    <ul className="divide-y divide-white/[0.06]">
+      {displayEvents.map((event) => {
         const config = TYPE_CONFIG[event.type] ?? TYPE_CONFIG.user;
         return (
           <li
             key={event.id}
-            className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors"
+            className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.03] transition-colors"
           >
             <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${config.color}`}>
               {config.icon}

@@ -1,0 +1,9 @@
+# Ignorar carpetas de configuración de VS Code
+.vscode/
+
+# Ignorar archivos compilados de Java (Maven)
+**/target/
+*.class
+
+# Ignorar logs
+*.log
