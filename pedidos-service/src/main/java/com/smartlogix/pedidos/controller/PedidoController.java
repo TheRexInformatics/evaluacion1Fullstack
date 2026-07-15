@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -16,12 +17,11 @@ public class PedidoController {
     private final PedidoService pedidoService;
 
     @PostMapping
-    // CAMBIO AQUÍ: Recibimos PedidoDTO en lugar de Pedido
     public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO pedidoDTO) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.crearPedido(pedidoDTO));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Error desconocido al procesar el pedido"));
         }
     }
 

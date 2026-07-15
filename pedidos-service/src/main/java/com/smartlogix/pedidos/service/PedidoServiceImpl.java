@@ -27,15 +27,26 @@ public class PedidoServiceImpl implements PedidoService {
     @Transactional
     public PedidoDTO crearPedido(PedidoDTO pedidoDTO) {
         // 1. Validar Stock vía Feign
-        Boolean tieneStock = inventarioClient.checkStock(pedidoDTO.getCodigoProducto(), pedidoDTO.getCantidad());
+        Boolean tieneStock;
+        try {
+            tieneStock = inventarioClient.checkStock(pedidoDTO.getCodigoProducto(), pedidoDTO.getCantidad());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al consultar stock: " + e.getMessage());
+        }
         if (tieneStock == null || !tieneStock) {
             throw new RuntimeException("Sin stock para: " + pedidoDTO.getCodigoProducto());
         }
 
         // 2. Obtener precio del producto
-        ProductoDTO producto = inventarioClient.getProductoById(pedidoDTO.getProductoId());
-        if (producto == null)
-            throw new RuntimeException("Producto no encontrado");
+        ProductoDTO producto;
+        try {
+            producto = inventarioClient.getProductoById(pedidoDTO.getProductoId());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener producto: " + e.getMessage());
+        }
+        if (producto == null) {
+            throw new RuntimeException("Producto no encontrado con ID: " + pedidoDTO.getProductoId());
+        }
 
         // 3. Mapear DTO a Entidad para persistencia
         Pedido pedido = new Pedido();
@@ -49,7 +60,11 @@ public class PedidoServiceImpl implements PedidoService {
 
         // 4. Guardar en DB local y reducir stock remoto
         Pedido guardado = pedidoRepository.save(pedido);
-        inventarioClient.reducirStock(pedido.getCodigoProducto(), pedido.getCantidad());
+        try {
+            inventarioClient.reducirStock(pedido.getCodigoProducto(), pedido.getCantidad());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al reducir stock: " + e.getMessage());
+        }
 
         PedidoEventoDTO evento = new PedidoEventoDTO(
                 guardado.getId(), guardado.getProductoId(), guardado.getCodigoProducto(),

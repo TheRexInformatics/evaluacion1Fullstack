@@ -30,8 +30,6 @@ inventario:
     url: ${INVENTARIO_SERVICE_URL:http://localhost:8081}
 
 feign:
-  circuitbreaker:
-    enabled: true
   client:
     config:
       default:

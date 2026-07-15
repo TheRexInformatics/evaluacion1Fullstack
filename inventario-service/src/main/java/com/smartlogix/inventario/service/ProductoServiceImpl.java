@@ -37,7 +37,13 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional
     public Producto save(Producto producto) {
-        return productoRepository.save(producto);
+        Producto saved = productoRepository.save(producto);
+        Stock stockInicial = new Stock();
+        stockInicial.setProducto(saved);
+        stockInicial.setBodegaId(1L);
+        stockInicial.setCantidad(100);
+        stockRepository.save(stockInicial);
+        return saved;
     }
 
     @Override
@@ -64,8 +70,7 @@ public class ProductoServiceImpl implements ProductoService {
     public Boolean verificarStockTotal(String sku, Integer cantidad) {
         return productoRepository.findBySku(sku)
                 .map(prod -> {
-                    int totalDisponible = stockRepository.findAll().stream()
-                            .filter(s -> s.getProducto().getId().equals(prod.getId()))
+                    int totalDisponible = stockRepository.findByProductoId(prod.getId()).stream()
                             .mapToInt(Stock::getCantidad)
                             .sum();
                     return totalDisponible >= cantidad;
@@ -78,8 +83,8 @@ public class ProductoServiceImpl implements ProductoService {
         Producto prod = productoRepository.findBySku(sku)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado con SKU: " + sku));
 
-        List<Stock> stocks = stockRepository.findAll().stream()
-                .filter(s -> s.getProducto().getId().equals(prod.getId()) && s.getCantidad() > 0)
+        List<Stock> stocks = stockRepository.findByProductoId(prod.getId()).stream()
+                .filter(s -> s.getCantidad() > 0)
                 .toList();
 
         int pendientePorReducir = cantidad;
@@ -109,26 +114,17 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     @Transactional
     public void aumentarStockGlobal(String sku, Integer cantidad) {
-        // 1. Buscamos que el producto exista
         Producto prod = productoRepository.findBySku(sku)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado con SKU: " + sku));
 
-        // 2. Buscamos dónde está guardado este producto (sus registros en bodegas)
-        List<Stock> stocks = stockRepository.findAll().stream()
-                .filter(s -> s.getProducto().getId().equals(prod.getId()))
-                .toList();
+        List<Stock> stocks = stockRepository.findByProductoId(prod.getId());
 
-        // 3. Validamos que tenga al menos un registro de bodega
         if (stocks.isEmpty()) {
             throw new RuntimeException("No existe registro de bodega para devolver el stock del SKU: " + sku);
         }
 
-        // 4. Para la compensación, devolvemos todo el stock a la primera bodega
-        // encontrada
         Stock stockPrincipal = stocks.get(0);
         stockPrincipal.setCantidad(stockPrincipal.getCantidad() + cantidad);
-
-        // 5. Guardamos el cambio
         stockRepository.save(stockPrincipal);
     }
 }
