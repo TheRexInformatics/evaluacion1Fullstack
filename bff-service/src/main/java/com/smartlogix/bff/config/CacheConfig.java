@@ -25,8 +25,14 @@ public class CacheConfig {
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
-                .withCacheConfiguration("dashboard", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)))
-                .withCacheConfiguration("kpis", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)))
+                .withCacheConfiguration("dashboard", RedisCacheConfiguration.defaultCacheConfig()
+                        .entryTtl(Duration.ofSeconds(30))
+                        .serializeValuesWith(RedisSerializationContext
+                                .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
+                .withCacheConfiguration("kpis", RedisCacheConfiguration.defaultCacheConfig()
+                        .entryTtl(Duration.ofSeconds(30))
+                        .serializeValuesWith(RedisSerializationContext
+                                .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
                 .build();
     }
 }
