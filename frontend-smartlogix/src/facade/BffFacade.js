@@ -74,7 +74,7 @@ async function fetchWithAuth(endpoint, options = {}) {
 
 // Auth (endpoints públicos del Gateway)
 export async function login(username, password) {
-  const response = await fetch(`${API_GATEWAY_URL}/api/auth/login`, {
+  const response = await fetch(`${API_GATEWAY_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
